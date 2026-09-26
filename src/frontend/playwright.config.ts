@@ -12,7 +12,13 @@ export default defineConfig({
     baseURL: `http://localhost:${FRONTEND_PORT}`,
     trace: 'retain-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  // PLAYWRIGHT_CHANNEL=chrome uses an installed Chrome when the bundled browser is unavailable.
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'], channel: process.env.PLAYWRIGHT_CHANNEL },
+    },
+  ],
   webServer: [
     {
       command: `rm -f e2e.db && HABITUDE_DATABASE_URL=sqlite:///./e2e.db ../../.venv/bin/alembic upgrade head && HABITUDE_DATABASE_URL=sqlite:///./e2e.db ../../.venv/bin/uvicorn app.main:app --port ${BACKEND_PORT}`,
