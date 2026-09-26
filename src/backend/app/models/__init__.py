@@ -1,5 +1,6 @@
 from app.models.auth_session import AuthSession
 from app.models.failed_login import FailedLogin
+from app.models.habit import Habit
 from app.models.user import User
 
-__all__ = ["AuthSession", "FailedLogin", "User"]
+__all__ = ["AuthSession", "FailedLogin", "Habit", "User"]
