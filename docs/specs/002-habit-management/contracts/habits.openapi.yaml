@@ -1,0 +1,119 @@
+openapi: 3.1.0
+info:
+  title: Habitude API - Habits (spec 002)
+  version: "1"
+# All endpoints require the session cookie (401 UNAUTHENTICATED otherwise) and state-changing
+# requests require `X-Requested-With` (403). Unknown or foreign habit ids are 404 NOT_FOUND.
+paths:
+  /api/v1/habits:
+    get:
+      summary: List habits ordered by position (FR-007)
+      parameters:
+        - { name: archived, in: query, schema: { type: boolean, default: false } }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HabitList" }
+    post:
+      summary: Create a habit, appended to the end (FR-001, FR-006)
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/HabitCreate" }
+      responses:
+        "201":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HabitRead" }
+        "409": { description: "HABIT_LIMIT_REACHED - 'Habit limit reached (50)', details.limit=50" }
+        "422": { description: VALIDATION_ERROR }
+  /api/v1/habits/order:
+    put:
+      summary: Reorder active habits (FR-005)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [habit_ids]
+              properties:
+                habit_ids: { type: array, items: { type: string } }
+      responses:
+        "200":
+          description: The active habits in their new order.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HabitList" }
+        "422": { description: "habit_ids is not exactly the set of active habit ids" }
+  /api/v1/habits/{habit_id}:
+    get:
+      summary: Get one habit
+      responses:
+        "200": { content: { application/json: { schema: { $ref: "#/components/schemas/HabitRead" } } } }
+        "404": { description: NOT_FOUND }
+    patch:
+      summary: Edit name, description, icon, color (FR-002)
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/HabitUpdate" }
+      responses:
+        "200": { content: { application/json: { schema: { $ref: "#/components/schemas/HabitRead" } } } }
+        "404": { description: NOT_FOUND }
+        "422": { description: VALIDATION_ERROR }
+    delete:
+      summary: Permanently delete a habit and its dependent rows (FR-004)
+      responses:
+        "204": { description: Deleted }
+        "404": { description: NOT_FOUND }
+  /api/v1/habits/{habit_id}/archive:
+    post:
+      summary: Archive (idempotent) (FR-003)
+      responses:
+        "200": { content: { application/json: { schema: { $ref: "#/components/schemas/HabitRead" } } } }
+  /api/v1/habits/{habit_id}/restore:
+    post:
+      summary: Restore to the end of the active list (idempotent) (FR-003, FR-006)
+      responses:
+        "200": { content: { application/json: { schema: { $ref: "#/components/schemas/HabitRead" } } } }
+        "409": { description: HABIT_LIMIT_REACHED }
+components:
+  schemas:
+    Color:
+      type: string
+      enum: [coral, amber, lime, teal, sky, indigo, violet, rose]
+    HabitCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80, description: trimmed before validation }
+        description: { type: [string, "null"], maxLength: 500 }
+        icon: { type: [string, "null"], maxLength: 16 }
+        color: { $ref: "#/components/schemas/Color", default: coral }
+    HabitUpdate:
+      type: object
+      description: All fields optional; sending null clears description or icon.
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+        description: { type: [string, "null"], maxLength: 500 }
+        icon: { type: [string, "null"], maxLength: 16 }
+        color: { $ref: "#/components/schemas/Color" }
+    HabitRead:
+      type: object
+      required: [id, name, description, icon, color, position, archived_at, created_at]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: [string, "null"] }
+        icon: { type: [string, "null"] }
+        color: { $ref: "#/components/schemas/Color" }
+        position: { type: integer }
+        archived_at: { type: [string, "null"], format: date-time }
+        created_at: { type: string, format: date-time }
+    HabitList:
+      type: object
+      required: [items, total]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/HabitRead" } }
+        total: { type: integer }

@@ -1,16 +1,6 @@
-import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-async function expectNoA11yViolations(page: Page): Promise<void> {
-  const results = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
-    .analyze();
-  expect(results.violations).toEqual([]);
-}
-
-function uniqueEmail(): string {
-  return `ana+${Date.now()}${Math.floor(Math.random() * 1000)}@example.com`;
-}
+import { expectNoA11yViolations, uniqueEmail } from './helpers';
 
 test.describe('spec 001 - User accounts @p1', () => {
   test('US1+US2+US3: register lands on dashboard, survives reload, sign out protects pages', async ({

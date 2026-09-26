@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { Link, Outlet } from 'react-router';
+import { Link, NavLink, Outlet } from 'react-router';
 
 import { useLogout, useMe } from '@/features/auth';
 
@@ -13,6 +13,12 @@ export function AppShell(): JSX.Element {
         <Link to="/" className="brand">
           Habitude
         </Link>
+        <nav aria-label="Main" className="app-nav">
+          <NavLink to="/" end>
+            Today
+          </NavLink>
+          <NavLink to="/habits">Habits</NavLink>
+        </nav>
         <div className="app-header-user">
           <span className="user-email">{me.data?.email}</span>
           <button
