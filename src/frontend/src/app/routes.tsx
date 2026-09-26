@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router';
 
 import { RegisterPage, SignInPage } from '@/features/auth';
+import { HabitsPage } from '@/features/habits';
 import { TodayPage } from '@/features/today';
 
 import { AppShell } from './layout/AppShell';
@@ -13,7 +14,10 @@ export const routes: RouteObject[] = [
     children: [
       {
         element: <AppShell />,
-        children: [{ path: '/', element: <TodayPage /> }],
+        children: [
+          { path: '/', element: <TodayPage /> },
+          { path: '/habits', element: <HabitsPage /> },
+        ],
       },
     ],
   },

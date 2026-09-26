@@ -7,9 +7,9 @@ import { habit, habitsBackend } from '@/test/habits-backend';
 import { axeViolations, renderApp } from '@/test/render';
 import { ana, API, errorBody, server, sessionHandlers } from '@/test/server';
 
-function setup(initial = [habit({ name: 'Read 10 pages', position: 0 })]): ReturnType<
-  typeof habitsBackend
-> {
+function setup(
+  initial = [habit({ name: 'Read 10 pages', position: 0 })],
+): ReturnType<typeof habitsBackend> {
   const backend = habitsBackend(initial);
   server.use(...sessionHandlers(ana), ...backend.handlers);
   return backend;
@@ -29,21 +29,28 @@ describe('spec 002 US1 - Create a habit', () => {
     await userEvent.click(screen.getByRole('button', { name: /add habit/i }));
 
     expect(await within(activeList()).findByText('Drink 2L of water')).toBeInTheDocument();
-    expect(backend.habits[0]).toMatchObject({ name: 'Drink 2L of water', icon: '💧', color: 'teal' });
+    expect(backend.habits[0]).toMatchObject({
+      name: 'Drink 2L of water',
+      icon: '💧',
+      color: 'teal',
+    });
     expect(screen.getByLabelText(/^name/i)).toHaveValue('');
   });
 
   it.each([
     ['blank', '   ', /enter a name/i],
     ['81 characters', 'a'.repeat(81), /at most 80 characters/i],
-  ])('given a %s name, when submitted, then an inline error shows and nothing is saved', async (_label, name, message) => {
-    const backend = setup([]);
-    renderApp('/habits');
-    await userEvent.type(await screen.findByLabelText(/^name/i), name);
-    await userEvent.click(screen.getByRole('button', { name: /add habit/i }));
-    expect(screen.getByText(message)).toBeInTheDocument();
-    expect(backend.habits).toHaveLength(0);
-  });
+  ])(
+    'given a %s name, when submitted, then an inline error shows and nothing is saved',
+    async (_label, name, message) => {
+      const backend = setup([]);
+      renderApp('/habits');
+      await userEvent.type(await screen.findByLabelText(/^name/i), name);
+      await userEvent.click(screen.getByRole('button', { name: /add habit/i }));
+      expect(screen.getByText(message)).toBeInTheDocument();
+      expect(backend.habits).toHaveLength(0);
+    },
+  );
 
   it('given 50 habits, when creating a 51st, then "Habit limit reached (50)" is announced', async () => {
     setup([]);
@@ -118,7 +125,7 @@ describe('spec 002 US3 - Archive and restore', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Archive Read 10 pages' }));
     const archived = await screen.findByRole('list', { name: /archived habits/i });
     expect(await within(archived).findByText('Read 10 pages')).toBeInTheDocument();
-    expect(within(activeList()).queryByText('Read 10 pages')).not.toBeInTheDocument();
+    expect(screen.getByText(/no active habits/i)).toBeInTheDocument();
 
     await userEvent.click(within(archived).getByRole('button', { name: 'Restore Read 10 pages' }));
     expect(await within(activeList()).findByText('Read 10 pages')).toBeInTheDocument();
@@ -171,7 +178,11 @@ describe('spec 002 US5 - Reorder habits', () => {
     await userEvent.keyboard('{Enter}');
 
     await expect
-      .poll(() => within(activeList()).getAllByRole('heading').map((h) => h.textContent))
+      .poll(() =>
+        within(activeList())
+          .getAllByRole('heading')
+          .map((h) => h.textContent),
+      )
       .toEqual(['Third', 'First', 'Second']);
     expect([...backend.habits].sort((a, b) => a.position - b.position).map((h) => h.name)).toEqual([
       'Third',

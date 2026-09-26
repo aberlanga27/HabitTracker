@@ -1,8 +1,8 @@
 import { http, HttpResponse } from 'msw';
 
-import { API, errorBody } from './server';
-
 import type { components } from '@/shared/types/api.generated';
+
+import { API, errorBody } from './server';
 
 type HabitRead = components['schemas']['HabitRead'];
 type HabitCreate = components['schemas']['HabitCreate'];
