@@ -12,9 +12,10 @@ def test_us3_s1_fr005_sign_out_invalidates_session_server_side(
     token = client.cookies["habitude_session"]
     resp = client.post("/api/v1/auth/logout")
     assert resp.status_code == 204
-    assert 'habitude_session=""' in resp.headers["set-cookie"] or "Max-Age=0" in resp.headers[
-        "set-cookie"
-    ]
+    assert (
+        'habitude_session=""' in resp.headers["set-cookie"]
+        or "Max-Age=0" in resp.headers["set-cookie"]
+    )
     assert db.exec(select(AuthSession)).all() == []
     client.cookies.set("habitude_session", token)
     assert client.get("/api/v1/auth/me").status_code == 401

@@ -4,9 +4,7 @@ from fastapi.testclient import TestClient
 def test_unknown_route_returns_error_envelope(client: TestClient) -> None:
     resp = client.get("/api/v1/does-not-exist")
     assert resp.status_code == 404
-    assert resp.json() == {
-        "error": {"code": "NOT_FOUND", "message": "Not Found", "details": {}}
-    }
+    assert resp.json() == {"error": {"code": "NOT_FOUND", "message": "Not Found", "details": {}}}
 
 
 def test_state_changing_request_without_requested_with_header_is_forbidden(

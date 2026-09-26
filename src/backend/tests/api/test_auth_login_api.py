@@ -10,7 +10,7 @@ from tests.fakes import FrozenClock
 
 def _login(client: TestClient, email: str, password: str) -> int:
     resp = client.post("/api/v1/auth/login", json={"email": email, "password": password})
-    return resp.status_code
+    return int(resp.status_code)
 
 
 def _registered_signed_out(client: TestClient, email: str = "ana@example.com") -> None:
@@ -136,9 +136,7 @@ def test_fr007_lockout_is_per_email_and_case_insensitive(
     assert _login(client, "ben@example.com", DEFAULT_PASSWORD) == 200
 
 
-def test_fr007_successful_sign_in_clears_failures(
-    client: TestClient, db: Session
-) -> None:
+def test_fr007_successful_sign_in_clears_failures(client: TestClient, db: Session) -> None:
     _registered_signed_out(client)
     for _ in range(4):
         _login(client, "ana@example.com", "wrong-password-1")
