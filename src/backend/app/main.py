@@ -7,7 +7,7 @@ from app.core.config import get_settings
 from app.core.csrf import RequireRequestedWithMiddleware
 from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
-from app.routers import auth
+from app.routers import auth, habits
 
 API_PREFIX = "/api/v1"
 
@@ -32,6 +32,7 @@ def create_app() -> FastAPI:
     )
     register_error_handlers(app)
     app.include_router(auth.router, prefix=API_PREFIX)
+    app.include_router(habits.router, prefix=API_PREFIX)
     return app
 
 
