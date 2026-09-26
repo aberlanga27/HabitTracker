@@ -2,8 +2,8 @@
 
 This document defines how Habitude is tested. It applies to humans and AI agents
 alike and is governed by Principle III of `.specify/memory/constitution.md`
-(Test-First, NON-NEGOTIABLE). Nothing in `src/` is implemented yet; every command
-below is **planned** and becomes real once the corresponding plan/tasks are executed.
+(Test-First, NON-NEGOTIABLE). Commands in section 13 are live; sections marked *planned*
+(xdist, CI) arrive with their own specs.
 
 ## 1. Philosophy: Spec-Driven Tests
 
@@ -193,17 +193,23 @@ describe("spec 003 US1 - Check in for today", () => {
 });
 ```
 
-## 13. Planned Commands
+## 13. Commands
 
 ```bash
-# backend
-.venv/bin/pytest src/backend -q                       # unit + api
-.venv/bin/pytest src/backend -m perf                  # performance budgets
-.venv/bin/pytest src/backend --cov=app --cov-report=term-missing
+# backend (from src/backend; coverage gate is configured in pyproject.toml)
+../../.venv/bin/pytest                                # unit + api + contract with coverage
+../../.venv/bin/pytest -m perf                        # performance budgets
+../../.venv/bin/pytest tests/api/test_auth_login_api.py -k fr007 --no-cov   # one FR
 
-# frontend
-cd src/frontend && npm test                           # vitest
-cd src/frontend && npm run test:e2e                   # playwright @p1 + axe
+# frontend (from src/frontend)
+npm test                                              # vitest
+npm run test:coverage                                 # vitest with 80% statement threshold
+npm run test:e2e                                      # playwright @p1 + axe (starts both servers)
+PLAYWRIGHT_CHANNEL=chrome npm run test:e2e            # use an installed Chrome
 ```
+
+Test harness notes: backend tests copy an Alembic-migrated template SQLite file per test
+(`tests/conftest.py`) and use `FrozenClock` from `tests/fakes.py`; component tests render the
+real route tree with `renderApp()` from `src/test/render.tsx` and mock the API with MSW.
 
 Related: `docs/coding-standards.md`, `docs/frontend.md`, `docs/specs/README.md`.

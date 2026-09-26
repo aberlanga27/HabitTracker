@@ -103,11 +103,11 @@ def create_habit(
 - One exception handler maps each to an HTTP status and a single error envelope:
 
 ```json
-{ "error": { "code": "habit_limit_reached", "message": "Habit limit reached (50)", "details": {} } }
+{ "error": { "code": "HABIT_LIMIT_REACHED", "message": "Habit limit reached (50)", "details": {} } }
 ```
 
 - Services raise domain exceptions; they never raise `HTTPException`.
-- `code` values are stable `snake_case` strings the frontend can switch on.
+- `code` values are stable `UPPER_SNAKE` strings the frontend can switch on.
   Messages are for humans and may change.
 
 ### Logging
@@ -193,9 +193,9 @@ export const habitKeys = {
 - REST paths are plural nouns, kebab-case, no verbs:
   `GET /api/v1/habits`, `POST /api/v1/habits/{id}/check-ins`, `POST /api/v1/habits/{id}/archive`
   (state transitions are the one exception and use a verb sub-resource).
-- JSON on the wire is `snake_case`. The frontend uses a generated typed client
-  from the backend's OpenAPI document that maps to `camelCase`; never hand-write
-  API types.
+- JSON on the wire is `snake_case`. The frontend uses types generated from the
+  backend's OpenAPI document as-is (`snake_case` fields, no mapping layer); never
+  hand-write API types.
 - IDs are UUIDv7 strings.
 - Local dates are `YYYY-MM-DD` strings. Timestamps are ISO-8601 UTC with `Z`.
 - Booleans are booleans, never `0/1` or `"true"`.

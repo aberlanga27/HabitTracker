@@ -1,0 +1,86 @@
+openapi: 3.1.0
+info:
+  title: Habitude API - Auth (spec 001)
+  version: "1"
+paths:
+  /api/v1/auth/register:
+    post:
+      summary: Register and sign in (FR-001, FR-002, FR-003, FR-008)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RegisterRequest" }
+      responses:
+        "201":
+          description: Account created; `habitude_session` cookie set.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserRead" }
+        "400": { description: "REGISTRATION_FAILED (generic, e.g. email taken)" }
+        "422": { description: VALIDATION_ERROR }
+  /api/v1/auth/login:
+    post:
+      summary: Sign in (FR-003, FR-007, FR-008)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginRequest" }
+      responses:
+        "200":
+          description: Signed in; `habitude_session` cookie set.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserRead" }
+        "401": { description: "INVALID_CREDENTIALS - 'Invalid email or password'" }
+        "429": { description: LOCKED_OUT }
+  /api/v1/auth/logout:
+    post:
+      summary: Sign out; deletes the session server-side (FR-005)
+      responses:
+        "204": { description: Session deleted and cookie cleared (idempotent). }
+  /api/v1/auth/me:
+    get:
+      summary: Current user (FR-003, FR-004, FR-006)
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserRead" }
+        "401": { description: UNAUTHENTICATED }
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, maxLength: 254 }
+        password: { type: string, minLength: 10, maxLength: 128 }
+        timezone: { type: string, default: UTC, description: IANA timezone }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string }
+        password: { type: string }
+    UserRead:
+      type: object
+      required: [id, email, timezone, created_at]
+      properties:
+        id: { type: string }
+        email: { type: string }
+        timezone: { type: string }
+        created_at: { type: string, format: date-time }
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, details]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details: { type: object }
+# All state-changing requests require the `X-Requested-With` header (403 FORBIDDEN otherwise).

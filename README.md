@@ -17,9 +17,9 @@ The workflow is [GitHub Spec Kit](https://github.com/github/spec-kit), installed
 
 ## Status
 
-**Phase 0: AI-readiness complete, no application code yet.**
+**Phase 1: MVP implementation in progress.**
 
-Specs, docs, constitution, prompts, and agents are in place. The `src/backend/` and `src/frontend/` folders are empty on purpose; their contents will be produced by running the Spec Kit workflow feature by feature.
+Specs, docs, constitution, prompts, and agents are in place. Application code in `src/backend/` and `src/frontend/` is produced by running the Spec Kit workflow feature by feature; the Status column in [docs/specs/README.md](docs/specs/README.md) shows which specs are implemented.
 
 ## Features (specs)
 
@@ -66,14 +66,14 @@ README.md
 .specify/                 # Spec Kit config, scripts, templates, constitution
 docs/                     # architecture, coding standards, testing, frontend, workflow
 docs/specs/NNN-name/      # one folder per feature
-src/backend/              # planned FastAPI app
-src/frontend/             # planned React app
+src/backend/              # FastAPI app
+src/frontend/             # React app
 requirements-tooling.txt  # deps for the .venv (specify-cli)
 ```
 
 ## Getting started
 
-Requirements: Python 3.13, [uv](https://docs.astral.sh/uv/), Node 22 LTS (for the future frontend), VS Code with GitHub Copilot.
+Requirements: Python 3.13, [uv](https://docs.astral.sh/uv/), Node 22 LTS, VS Code with GitHub Copilot.
 
 ```bash
 git clone <this-repo> habitude && cd habitude
@@ -84,9 +84,16 @@ uv pip install --python .venv/bin/python -r requirements-tooling.txt
 
 # verify
 .venv/bin/specify check
+
+# backend deps, database, and dev server (http://localhost:8000)
+uv pip install --python .venv/bin/python -r src/backend/pyproject.toml --extra dev
+cd src/backend && ../../.venv/bin/alembic upgrade head && ../../.venv/bin/uvicorn app.main:app --reload
+
+# frontend dev server in another terminal (http://localhost:5173)
+cd src/frontend && npm install && npm run dev
 ```
 
-There is nothing to run yet. Application code is created by working through the specs with the Spec Kit workflow.
+See [AGENTS.md](AGENTS.md) for test, lint, and type-check commands.
 
 ## Using the Spec Kit workflow
 
