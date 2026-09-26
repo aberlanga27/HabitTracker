@@ -4,6 +4,7 @@ from typing import Any
 
 import pydantic
 import pytest
+
 from app.schemas.habits import HabitCreate, HabitUpdate
 
 PALETTE = ["coral", "amber", "lime", "teal", "sky", "indigo", "violet", "rose"]
