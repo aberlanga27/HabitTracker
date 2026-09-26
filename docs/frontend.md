@@ -1,7 +1,7 @@
 # Frontend Guide
 
 **Audience**: humans and AI agents implementing or reviewing the Habitude web client.
-**Status**: planning document. No frontend code exists yet; everything below describes the target shape that specs and plans must follow. Commands marked *(planned)* will work once `src/frontend/` is scaffolded.
+**Status**: living document. `src/frontend/` is scaffolded (spec 001); features land spec by spec and must follow the shape below.
 
 The constitution (`.specify/memory/constitution.md`) fixes the stack. This document explains how to use it.
 
@@ -115,7 +115,7 @@ Invalidate by prefix: a check-in mutation invalidates `['day']`, `['habits']`, `
 ## API Client Conventions
 
 - `shared/lib/apiClient.ts` wraps `fetch` with the base URL, `credentials: 'include'` (session cookie), JSON handling, and error normalization. Nothing else calls `fetch` directly.
-- Types come from `shared/types/api.generated.ts`, generated from the backend's OpenAPI document (`npm run gen:api`, planned). Do not hand-write request or response types.
+- Types come from `shared/types/api.generated.ts`, generated from the backend's OpenAPI document (`npm run gen:api`). Do not hand-write request or response types.
 - Each feature has one `api.ts` exposing plain async functions (`listHabits`, `toggleCheckIn`). Hooks in `hooks/` wrap them with TanStack Query.
 - Every non-2xx response is thrown as an `ApiError`:
 
@@ -235,7 +235,7 @@ Code-split routes with `React.lazy`; keep the heatmap and stats charts out of th
 
 Copy `.env.example` to `.env.local`; never commit `.env.local`.
 
-## Commands *(planned)*
+## Commands
 
 Run from `src/frontend/`.
 

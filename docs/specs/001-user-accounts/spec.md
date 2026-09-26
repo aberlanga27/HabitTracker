@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-26
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "A person can create a local account, sign in, and sign out so that their habits are private to them."
 

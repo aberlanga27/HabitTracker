@@ -2,7 +2,7 @@
 
 **Habitude** is a small full-stack habit tracker (FastAPI + SQLite backend, React + TypeScript frontend) built as a capstone demo of spec-driven, AI-assisted development with [GitHub Spec Kit](https://github.com/github/spec-kit). This file is the single source of agent instructions; `.github/copilot-instructions.md` points here.
 
-**Current phase**: Phase 0. Specs, docs, and agent tooling exist. No application code exists yet. Every line of `src/` will be produced through the Spec Kit workflow below.
+**Current phase**: Phase 1, MVP implementation. Specs are implemented one at a time through the Spec Kit workflow below; see the Status column in `docs/specs/README.md`.
 
 ## Read these first, in order
 
@@ -27,8 +27,8 @@ README.md                      # human-facing overview
 .specify/templates/            # spec / plan / tasks / checklist templates
 docs/                          # all documentation
 docs/specs/NNN-name/           # one folder per feature: spec.md, plan.md, tasks.md, research.md, data-model.md, contracts/
-src/backend/                   # (planned) FastAPI app
-src/frontend/                  # (planned) React app
+src/backend/                   # FastAPI app (app/, tests/, openapi.json snapshot)
+src/frontend/                  # React app (src/, e2e/)
 .venv/                         # Python venv hosting specify-cli and backend tooling (never commit)
 requirements-tooling.txt       # tooling deps for .venv (specify-cli)
 ```
@@ -72,20 +72,27 @@ uv pip install --python .venv/bin/python -r requirements-tooling.txt
 .venv/bin/specify check          # verify Spec Kit tooling
 ```
 
-Planned commands (not yet available; created by the first implementation specs):
+Backend and frontend commands:
 
 ```bash
-# backend (planned)
-.venv/bin/uvicorn src.backend.app.main:app --reload
-.venv/bin/pytest src/backend
-.venv/bin/ruff check src/backend && .venv/bin/ruff format src/backend
-.venv/bin/mypy --strict src/backend
+# backend setup (once)
+uv pip install --python .venv/bin/python -r src/backend/pyproject.toml --extra dev
 
-# frontend (planned)
-cd src/frontend && npm install && npm run dev
+# backend (run from src/backend)
+cd src/backend
+../../.venv/bin/alembic upgrade head
+../../.venv/bin/uvicorn app.main:app --reload            # http://localhost:8000/api/v1/docs
+../../.venv/bin/pytest                                   # unit + api + contract, coverage gate 85%
+../../.venv/bin/ruff check . && ../../.venv/bin/ruff format --check .
+../../.venv/bin/mypy                                     # strict, configured in pyproject.toml
+../../.venv/bin/python -m scripts.export_openapi         # refresh openapi.json after API changes
+
+# frontend (run from src/frontend)
+cd src/frontend && npm install && npm run dev            # http://localhost:5173 (proxies /api)
 npm test            # vitest
-npm run test:e2e    # playwright
+npm run test:e2e    # playwright (PLAYWRIGHT_CHANNEL=chrome to use an installed Chrome)
 npm run lint && npm run typecheck
+npm run gen:api     # regenerate src/shared/types/api.generated.ts from ../backend/openapi.json
 ```
 
 ## Definition of done

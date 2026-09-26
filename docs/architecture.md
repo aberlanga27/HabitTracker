@@ -1,7 +1,7 @@
 # Architecture
 
 **Audience**: humans and AI agents planning or implementing Habitude features.
-**Status**: planning document. Describes the target system; no application code exists yet. Specs live in `docs/specs/`, the constitution in `.specify/memory/constitution.md`.
+**Status**: living document. Describes the target system; implemented specs are marked in `docs/specs/README.md`. Specs live in `docs/specs/`, the constitution in `.specify/memory/constitution.md`.
 
 ## System Overview
 
@@ -185,7 +185,7 @@ Each is a function of the rows for one user, computed per request with at most a
 
 ## Local Development Ports
 
-| Service | Port | Command *(planned)* |
+| Service | Port | Command |
 |---|---|---|
 | Backend (uvicorn, reload) | 8000 | `.venv/bin/uvicorn app.main:app --reload` from `src/backend/` |
 | Frontend (Vite) | 5173 | `npm run dev` from `src/frontend/` |
