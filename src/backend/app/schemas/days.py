@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.schemas.habits import HabitRead
 
@@ -22,3 +22,6 @@ class DayHabit(BaseModel):
 class DaySummary(BaseModel):
     date: date
     items: list[DayHabit]
+    due_count: int = Field(ge=0)
+    completed_count: int = Field(ge=0)
+    habit_count: int = Field(ge=0)

@@ -147,10 +147,25 @@
       },
       "DaySummary": {
         "properties": {
+          "completed_count": {
+            "minimum": 0.0,
+            "title": "Completed Count",
+            "type": "integer"
+          },
           "date": {
             "format": "date",
             "title": "Date",
             "type": "string"
+          },
+          "due_count": {
+            "minimum": 0.0,
+            "title": "Due Count",
+            "type": "integer"
+          },
+          "habit_count": {
+            "minimum": 0.0,
+            "title": "Habit Count",
+            "type": "integer"
           },
           "items": {
             "items": {
@@ -162,7 +177,10 @@
         },
         "required": [
           "date",
-          "items"
+          "items",
+          "due_count",
+          "completed_count",
+          "habit_count"
         ],
         "title": "DaySummary",
         "type": "object"

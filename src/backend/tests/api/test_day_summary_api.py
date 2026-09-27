@@ -57,9 +57,7 @@ def test_fr002_done_for_week_is_listed_but_not_counted_as_due(
 ) -> None:
     clock.set(datetime(2026, 9, 21, 12, tzinfo=UTC))  # Monday
     register(client)
-    habit_id = create_habit(
-        client, schedule={"type": "times_per_week", "times_per_week": 2}
-    )["id"]
+    habit_id = create_habit(client, schedule={"type": "times_per_week", "times_per_week": 2})["id"]
     check_in(client, habit_id, "2026-09-21")
     clock.set(datetime(2026, 9, 22, 12, tzinfo=UTC))
     check_in(client, habit_id, "2026-09-22")
@@ -74,9 +72,7 @@ def test_fr002_extra_check_in_on_done_for_week_day_is_not_counted(
 ) -> None:
     clock.set(datetime(2026, 9, 23, 12, tzinfo=UTC))  # Wednesday
     register(client)
-    habit_id = create_habit(
-        client, schedule={"type": "times_per_week", "times_per_week": 1}
-    )["id"]
+    habit_id = create_habit(client, schedule={"type": "times_per_week", "times_per_week": 1})["id"]
     check_in(client, habit_id, "2026-09-22")
     check_in(client, habit_id, "2026-09-23")
     assert _counts(_day(client, "2026-09-23")) == (0, 0, 1)
