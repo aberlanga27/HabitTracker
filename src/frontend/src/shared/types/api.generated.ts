@@ -345,6 +345,7 @@ export interface components {
       /** Position */
       position: number;
       schedule: components['schemas']['ScheduleRead'];
+      streak: components['schemas']['StreakRead'];
     };
     /**
      * HabitUpdate
@@ -411,6 +412,19 @@ export interface components {
       type: 'daily' | 'weekdays' | 'times_per_week';
       /** Weekdays */
       weekdays: ('mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun')[];
+    };
+    /** StreakRead */
+    StreakRead: {
+      /** Current */
+      current: number;
+      /** Current Start */
+      current_start: string | null;
+      /** Longest */
+      longest: number;
+      /** Longest End */
+      longest_end: string | null;
+      /** Longest Start */
+      longest_start: string | null;
     };
     /** UserRead */
     UserRead: {

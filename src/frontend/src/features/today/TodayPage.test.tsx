@@ -196,6 +196,24 @@ describe('spec 003 US3 - Add a note', () => {
   });
 });
 
+describe('spec 004 US1 - Current streak on Today', () => {
+  it('shows the current streak next to the habit', async () => {
+    const streaky = habit({
+      name: 'Meditate',
+      streak: {
+        current: 3,
+        current_start: '2026-09-24',
+        longest: 3,
+        longest_start: '2026-09-24',
+        longest_end: '2026-09-26',
+      },
+    });
+    setup([], [streaky]);
+    renderApp('/');
+    expect(await screen.findByLabelText('Current streak: 3 days')).toBeInTheDocument();
+  });
+});
+
 describe('spec 005 - Schedules on Today', () => {
   const gym = habit({
     name: 'Gym',

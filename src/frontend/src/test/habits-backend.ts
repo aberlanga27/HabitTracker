@@ -17,6 +17,14 @@ export const DAILY: ScheduleRead = {
   effective_from: '2026-09-26',
 };
 
+export const NO_STREAK: HabitRead['streak'] = {
+  current: 0,
+  current_start: null,
+  longest: 0,
+  longest_start: null,
+  longest_end: null,
+};
+
 function toRead(schedule: ScheduleIn | null | undefined): ScheduleRead {
   if (!schedule) return DAILY;
   return {
@@ -41,6 +49,7 @@ export function habit(overrides: Partial<HabitRead> = {}): HabitRead {
     archived_at: null,
     created_at: '2026-09-26T12:00:00Z',
     schedule: DAILY,
+    streak: NO_STREAK,
     ...overrides,
   };
 }
