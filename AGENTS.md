@@ -2,7 +2,7 @@
 
 **Habitude** is a small full-stack habit tracker (FastAPI + SQLite backend, React + TypeScript frontend) built as a capstone demo of spec-driven, AI-assisted development with [GitHub Spec Kit](https://github.com/github/spec-kit). This file is the single source of agent instructions; `.github/copilot-instructions.md` points here.
 
-**Current phase**: Phase 1, MVP implementation. Specs are implemented one at a time through the Spec Kit workflow below; see the Status column in `docs/specs/README.md`.
+**Current phase**: Phase 1 MVP (specs 001–006) implemented; Core-tier specs are next. Specs are implemented one at a time through the Spec Kit workflow below; see the Status column in `docs/specs/README.md`.
 
 ## Read these first, in order
 

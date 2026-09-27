@@ -19,8 +19,8 @@
 
 ## R4. Grouping (US3)
 - **Decision**: Two lists, "To do" and "Done" (completed due habits, plus done-for-week habits).
-  A 200 ms fade-in keyframe on newly placed rows stays inside the 300 ms budget and is disabled by
-  `prefers-reduced-motion` through the existing motion tokens.
+  Rows move immediately (well inside the 300 ms budget). A fade-in was tried and removed: axe
+  measured text contrast mid-animation and failed the WCAG AA check.
 
 ## R5. Midnight rollover (edge case)
 - **Decision**: `useLocalToday(timezone)` re-evaluates `localToday` every 30 s and updates state

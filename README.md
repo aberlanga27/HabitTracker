@@ -17,9 +17,9 @@ The workflow is [GitHub Spec Kit](https://github.com/github/spec-kit), installed
 
 ## Status
 
-**Phase 1: MVP implementation in progress.**
+**Phase 1: MVP complete (specs 001–006).**
 
-Specs, docs, constitution, prompts, and agents are in place. Application code in `src/backend/` and `src/frontend/` is produced by running the Spec Kit workflow feature by feature; the Status column in [docs/specs/README.md](docs/specs/README.md) shows which specs are implemented.
+Specs, docs, constitution, prompts, and agents are in place. Application code in `src/backend/` and `src/frontend/` is produced by running the Spec Kit workflow feature by feature; the Status column in [docs/specs/README.md](docs/specs/README.md) shows which specs are implemented. Core-tier specs (007–010, 012, 013) are next.
 
 ## Features (specs)
 

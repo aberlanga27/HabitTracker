@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-26
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "A home screen that shows what is due today, progress for the day, and lets the user check in quickly."
 
