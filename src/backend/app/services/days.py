@@ -50,11 +50,11 @@ def day_summary(session: Session, viewer: Viewer, day: date) -> DaySummary:
                 week=progress,
             )
         )
-    due = [item for item in items if item.status == "due"]
+    due_items = [item for item in items if item.status == "due"]
     return DaySummary(
         date=day,
         items=items,
-        due_count=len(due),
-        completed_count=sum(1 for item in due if item.completed),
+        due_count=len(due_items),
+        completed_count=sum(1 for item in due_items if item.completed),
         habit_count=len(habits),
     )
