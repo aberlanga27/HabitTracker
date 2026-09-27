@@ -1,26 +1,55 @@
 import { http, HttpResponse } from 'msw';
 
-import type { components } from '@/shared/types/api.generated';
-
 import { API, errorBody } from './server';
 
+import type { components } from '@/shared/types/api.generated';
+
+type HabitRead = components['schemas']['HabitRead'];
 type CheckInState = components['schemas']['CheckInState'];
 type CheckInSet = components['schemas']['CheckInSet'];
+type DayHabit = components['schemas']['DayHabit'];
 
-/** In-memory check-ins API keyed by `${habitId}|${date}`, mirroring the backend contract. */
-export function checkInsBackend(initial: CheckInState[] = []): {
+export interface DayStatus {
+  status: DayHabit['status'];
+  week?: DayHabit['week'];
+}
+
+/**
+ * In-memory `/days/:date` + check-in PUT API. Due-ness is decided by the backend, so tests
+ * pass `statusFor` to say which habits a date lists (default: every habit is due).
+ */
+export function dayBackend(
+  habits: HabitRead[],
+  options: {
+    checkIns?: CheckInState[];
+    statusFor?: (habit: HabitRead, date: string) => DayStatus | null;
+  } = {},
+): {
   states: Map<string, CheckInState>;
   puts: { habitId: string; date: string; body: CheckInSet }[];
   handlers: ReturnType<typeof http.get>[];
 } {
-  const states = new Map(initial.map((s) => [`${s.habit_id}|${s.date}`, { ...s }]));
+  const states = new Map((options.checkIns ?? []).map((s) => [`${s.habit_id}|${s.date}`, s]));
   const puts: { habitId: string; date: string; body: CheckInSet }[] = [];
+  const statusFor = options.statusFor ?? ((): DayStatus => ({ status: 'due' }));
 
   const handlers = [
-    http.get(`${API}/check-ins`, ({ request }) => {
-      const date = new URL(request.url).searchParams.get('date');
-      const items = [...states.values()].filter((s) => s.date === date);
-      return HttpResponse.json({ items, total: items.length });
+    http.get(`${API}/days/:date`, ({ params }) => {
+      const date = String(params.date);
+      const items: DayHabit[] = [];
+      for (const habit of habits.filter((h) => h.archived_at === null)) {
+        const status = statusFor(habit, date);
+        if (!status) continue;
+        const state = states.get(`${habit.id}|${date}`);
+        items.push({
+          habit,
+          status: status.status,
+          completed: state !== undefined,
+          note: state?.note ?? null,
+          week: status.week ?? null,
+        });
+      }
+      return HttpResponse.json({ date, items });
     }),
     http.put(`${API}/habits/:habitId/check-ins/:date`, async ({ params, request }) => {
       const habitId = String(params.habitId);

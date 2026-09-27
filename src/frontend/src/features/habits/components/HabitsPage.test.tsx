@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { habit, habitsBackend } from '@/test/habits-backend';
 import { axeViolations, renderApp } from '@/test/render';
@@ -158,6 +158,82 @@ describe('spec 002 US4 - Delete a habit', () => {
     await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
     expect(within(activeList()).getByText('Read 10 pages')).toBeInTheDocument();
     expect(backend.habits).toHaveLength(1);
+  });
+});
+
+describe('spec 005 - Habit schedules', () => {
+  it('US1: the schedule defaults to "Every day" and the list shows it', async () => {
+    const backend = setup([]);
+    renderApp('/habits');
+    expect(await screen.findByRole('radio', { name: 'Every day' })).toBeChecked();
+    await userEvent.type(screen.getByLabelText(/^name/i), 'Drink water');
+    await userEvent.click(screen.getByRole('button', { name: /add habit/i }));
+
+    expect(await within(activeList()).findByText('Every day')).toBeInTheDocument();
+    expect(backend.habits[0]?.schedule.type).toBe('daily');
+  });
+
+  it('US2: specific days sends the chosen weekdays and the list shows them', async () => {
+    const backend = setup([]);
+    renderApp('/habits');
+    await userEvent.type(await screen.findByLabelText(/^name/i), 'Gym');
+    await userEvent.click(screen.getByRole('radio', { name: 'Specific days' }));
+    const days = screen.getByRole('group', { name: /days/i });
+    await userEvent.click(within(days).getByRole('checkbox', { name: 'Monday' }));
+    await userEvent.click(within(days).getByRole('checkbox', { name: 'Wednesday' }));
+    await userEvent.click(within(days).getByRole('checkbox', { name: 'Friday' }));
+    await userEvent.click(screen.getByRole('button', { name: /add habit/i }));
+
+    expect(await within(activeList()).findByText('Mon, Wed, Fri')).toBeInTheDocument();
+    expect(backend.habits[0]?.schedule).toMatchObject({
+      type: 'weekdays',
+      weekdays: ['mon', 'wed', 'fri'],
+    });
+  });
+
+  it('US2-S2: specific days with none selected shows an error and saves nothing', async () => {
+    const backend = setup([]);
+    renderApp('/habits');
+    await userEvent.type(await screen.findByLabelText(/^name/i), 'Gym');
+    await userEvent.click(screen.getByRole('radio', { name: 'Specific days' }));
+    await userEvent.click(screen.getByRole('button', { name: /add habit/i }));
+    expect(screen.getByText(/choose at least one day/i)).toBeInTheDocument();
+    expect(backend.habits).toHaveLength(0);
+  });
+
+  it('US3: times per week sends the target and the list shows "3× per week"', async () => {
+    const backend = setup([]);
+    renderApp('/habits');
+    await userEvent.type(await screen.findByLabelText(/^name/i), 'Run');
+    await userEvent.click(screen.getByRole('radio', { name: 'Times per week' }));
+    const times = screen.getByLabelText(/times each week/i);
+    await userEvent.clear(times);
+    await userEvent.type(times, '3');
+    await userEvent.click(screen.getByRole('button', { name: /add habit/i }));
+
+    expect(await within(activeList()).findByText('3× per week')).toBeInTheDocument();
+    expect(backend.habits[0]?.schedule).toMatchObject({
+      type: 'times_per_week',
+      times_per_week: 3,
+    });
+  });
+
+  it('US4: editing the schedule sends it in the update', async () => {
+    let sent: unknown;
+    setup();
+    server.use(
+      http.patch(`${API}/habits/:id`, async ({ request }) => {
+        sent = await request.json();
+        return HttpResponse.json(habit({ name: 'Read 10 pages' }));
+      }),
+    );
+    renderApp('/habits');
+    await userEvent.click(await screen.findByRole('button', { name: 'Edit Read 10 pages' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Times per week' }));
+    await userEvent.click(screen.getByRole('button', { name: /^save/i }));
+    await vi.waitFor(() =>
+      expect(sent).toMatchObject({ schedule: { type: 'times_per_week', times_per_week: 3 } }),
+    );
   });
 });
 
