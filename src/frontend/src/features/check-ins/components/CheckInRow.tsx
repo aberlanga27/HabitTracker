@@ -1,5 +1,7 @@
 import type { CSSProperties, JSX } from 'react';
 
+import { StreakBadge } from '@/features/streaks';
+
 import { useToggleCheckIn } from '../hooks/use-check-ins';
 import type { DayHabit } from '../types';
 import { CheckInButton } from './CheckInButton';
@@ -28,6 +30,7 @@ export function CheckInRow({ item, colorToken, date, editable }: CheckInRowProps
         disabled={!editable || toggle.isPending}
         onToggle={() => toggle.mutate({ habitId: habit.id, completed: !completed })}
       />
+      <StreakBadge current={habit.streak.current} />
       {status === 'done_for_week' ? (
         <span className="habit-meta">✓ Done for this week</span>
       ) : (

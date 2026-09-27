@@ -1,5 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 
 import { createQueryClient } from '@/app/providers';
@@ -13,7 +14,9 @@ describe('spec 002 SC-003 - render budget', () => {
     const start = performance.now();
     render(
       <QueryClientProvider client={createQueryClient({ retry: false })}>
-        <HabitList habits={habits} />
+        <MemoryRouter>
+          <HabitList habits={habits} />
+        </MemoryRouter>
       </QueryClientProvider>,
     );
     const elapsed = performance.now() - start;
