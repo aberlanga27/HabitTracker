@@ -128,7 +128,7 @@ describe('spec 003 US2 - Backfill a past day', () => {
     await userEvent.click(button);
     await vi.waitFor(() => expect(backend.states.has(`${read.id}|2026-09-25`)).toBe(true));
 
-    await userEvent.click(screen.getByRole('link', { name: /^today$/i }));
+    await userEvent.click(screen.getByRole('link', { name: /jump to today/i }));
     expect(await screen.findByRole('heading', { name: /^today$/i })).toBeVisible();
   });
 
@@ -142,8 +142,8 @@ describe('spec 003 US2 - Backfill a past day', () => {
   it('disables "Previous day" 30 days back', async () => {
     setup();
     renderApp('/?date=2026-08-27');
-    expect(await screen.findByRole('button', { name: /previous day/i })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Read 10 pages' })).toBeEnabled();
+    expect(await screen.findByRole('button', { name: 'Read 10 pages' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /previous day/i })).toBeDisabled();
   });
 
   it.each([

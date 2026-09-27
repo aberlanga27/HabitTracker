@@ -8,6 +8,8 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   reporter: [['list']],
+  // Vite's first cold compile can exceed the default 5 s.
+  expect: { timeout: 10_000 },
   use: {
     baseURL: `http://localhost:${FRONTEND_PORT}`,
     trace: 'retain-on-failure',
