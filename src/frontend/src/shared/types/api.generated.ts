@@ -72,6 +72,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/check-ins': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Check Ins */
+    get: operations['list_check_ins_api_v1_check_ins_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/habits': {
     parameters: {
       query?: never;
@@ -143,6 +160,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/habits/{habit_id}/check-ins/{date}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Set Check In */
+    put: operations['set_check_in_api_v1_habits__habit_id__check_ins__date__put'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/habits/{habit_id}/restore': {
     parameters: {
       query?: never;
@@ -164,6 +198,39 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /** CheckInList */
+    CheckInList: {
+      /** Items */
+      items: components['schemas']['CheckInState'][];
+      /** Total */
+      total: number;
+    };
+    /**
+     * CheckInSet
+     * @description Desired state for one habit on one local date. Omitting `note` keeps the existing one.
+     */
+    CheckInSet: {
+      /** Completed */
+      completed: boolean;
+      /** Note */
+      note?: string | null;
+    };
+    /** CheckInState */
+    CheckInState: {
+      /** Completed */
+      completed: boolean;
+      /** Completed At */
+      completed_at: string | null;
+      /**
+       * Date
+       * Format: date
+       */
+      date: string;
+      /** Habit Id */
+      habit_id: string;
+      /** Note */
+      note: string | null;
+    };
     /** ErrorBody */
     ErrorBody: {
       /** Code */
@@ -467,6 +534,57 @@ export interface operations {
       };
       /** @description Bad Request */
       400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelope'];
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelope'];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelope'];
+        };
+      };
+    };
+  };
+  list_check_ins_api_v1_check_ins_get: {
+    parameters: {
+      query: {
+        date: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: {
+        habitude_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CheckInList'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
         headers: {
           [name: string]: unknown;
         };
@@ -898,6 +1016,80 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  set_check_in_api_v1_habits__habit_id__check_ins__date__put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        habit_id: string;
+        date: string;
+      };
+      cookie?: {
+        habitude_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CheckInSet'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CheckInState'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelope'];
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelope'];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelope'];
+        };
+      };
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelope'];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelope'];
         };
       };
     };

@@ -4,7 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
 import { renderApp } from '@/test/render';
-import { ana, API, errorBody, server } from '@/test/server';
+import { ana, API, emptyDataHandlers, errorBody, server } from '@/test/server';
 
 describe('spec 001 US3 - Sign out', () => {
   it('given a signed-in user, when choosing "Sign out", then the session is ended and sign-in is shown', async () => {
@@ -21,7 +21,7 @@ describe('spec 001 US3 - Sign out', () => {
         signedIn = false;
         return new HttpResponse(null, { status: 204 });
       }),
-      http.get(`${API}/habits`, () => HttpResponse.json({ items: [], total: 0 })),
+      ...emptyDataHandlers(),
     );
     const { router } = renderApp('/');
     await userEvent.click(await screen.findByRole('button', { name: /sign out/i }));

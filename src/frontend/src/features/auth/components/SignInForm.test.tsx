@@ -4,7 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
 import { axeViolations, renderApp } from '@/test/render';
-import { ana, API, errorBody, server, sessionHandlers } from '@/test/server';
+import { ana, API, emptyDataHandlers, errorBody, server, sessionHandlers } from '@/test/server';
 
 async function fillAndSubmit(email: string, password: string): Promise<void> {
   await userEvent.type(await screen.findByLabelText(/email/i), email);
@@ -51,7 +51,7 @@ describe('spec 001 US2 - Sign in', () => {
         signedIn = true;
         return HttpResponse.json(ana);
       }),
-      http.get(`${API}/habits`, () => HttpResponse.json({ items: [], total: 0 })),
+      ...emptyDataHandlers(),
     );
     const { router } = renderApp('/sign-in?next=%2F');
     await fillAndSubmit('ana@example.com', 'correct-horse-battery');
@@ -68,10 +68,7 @@ describe('spec 001 US2 - Sign in', () => {
   });
 
   it('given a signed-in user, when visiting sign-in, then they are redirected to the dashboard', async () => {
-    server.use(
-      ...sessionHandlers(ana),
-      http.get(`${API}/habits`, () => HttpResponse.json({ items: [], total: 0 })),
-    );
+    server.use(...sessionHandlers(ana), ...emptyDataHandlers());
     const { router } = renderApp('/sign-in');
     expect(await screen.findByRole('heading', { name: /today/i })).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/');
