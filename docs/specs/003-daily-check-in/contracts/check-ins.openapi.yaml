@@ -1,0 +1,58 @@
+openapi: 3.1.0
+info:
+  title: Habitude API - Check-ins (spec 003)
+  version: "1"
+# Session cookie required (401). State-changing requests require X-Requested-With (403).
+paths:
+  /api/v1/habits/{habit_id}/check-ins/{date}:
+    put:
+      summary: Set completion (and optional note) for a local date (FR-001..FR-005, FR-007)
+      parameters:
+        - { name: habit_id, in: path, required: true, schema: { type: string } }
+        - { name: date, in: path, required: true, schema: { type: string, format: date } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CheckInSet" }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckInState" }
+        "404": { description: NOT_FOUND (unknown or foreign habit) }
+        "409": { description: HABIT_ARCHIVED }
+        "422": { description: "DATE_OUT_OF_RANGE (future or > 30 days ago) or VALIDATION_ERROR" }
+  /api/v1/check-ins:
+    get:
+      summary: The user's check-ins on one local date
+      parameters:
+        - { name: date, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckInList" }
+components:
+  schemas:
+    CheckInSet:
+      type: object
+      required: [completed]
+      properties:
+        completed: { type: boolean }
+        note: { type: [string, "null"], maxLength: 280, description: "omitted = keep existing" }
+    CheckInState:
+      type: object
+      required: [habit_id, date, completed, note, completed_at]
+      properties:
+        habit_id: { type: string }
+        date: { type: string, format: date }
+        completed: { type: boolean }
+        note: { type: [string, "null"] }
+        completed_at: { type: [string, "null"], format: date-time }
+    CheckInList:
+      type: object
+      required: [items, total]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/CheckInState" } }
+        total: { type: integer }

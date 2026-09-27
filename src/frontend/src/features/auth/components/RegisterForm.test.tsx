@@ -4,7 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
 import { axeViolations, renderApp } from '@/test/render';
-import { ana, API, errorBody, server, sessionHandlers } from '@/test/server';
+import { ana, API, emptyDataHandlers, errorBody, server, sessionHandlers } from '@/test/server';
 
 describe('spec 001 US1 - Register a new account', () => {
   it('given a password shorter than 10 characters, when submitted, then an inline error shows and nothing is sent', async () => {
@@ -40,7 +40,7 @@ describe('spec 001 US1 - Register a new account', () => {
         registered = true;
         return HttpResponse.json(ana, { status: 201 });
       }),
-      http.get(`${API}/habits`, () => HttpResponse.json({ items: [], total: 0 })),
+      ...emptyDataHandlers(),
     );
     renderApp('/register');
     await userEvent.type(await screen.findByLabelText(/email/i), 'ana@example.com');

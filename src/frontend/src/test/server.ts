@@ -30,3 +30,11 @@ export function sessionHandlers(user: UserRead | null): ReturnType<typeof http.g
     ),
   ];
 }
+
+/** Empty data endpoints for tests that only need the dashboard to render. */
+export function emptyDataHandlers(): ReturnType<typeof http.get>[] {
+  return [
+    http.get(`${API}/habits`, () => HttpResponse.json({ items: [], total: 0 })),
+    http.get(`${API}/check-ins`, () => HttpResponse.json({ items: [], total: 0 })),
+  ];
+}

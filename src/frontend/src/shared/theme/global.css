@@ -304,3 +304,83 @@ a {
 .delete-confirm {
   width: 100%;
 }
+
+.date-label,
+.field-hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.notice {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+}
+
+.button-small {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+a.button {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.check-in-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  min-height: 44px;
+  font: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  color: var(--text);
+  cursor: pointer;
+  padding: 0;
+}
+
+.check-in-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.check-in-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--habit-color, var(--border));
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  transition: background var(--motion-fast);
+}
+
+.check-in-button[aria-pressed='true'] .check-in-mark {
+  background: var(--habit-color, var(--success));
+  color: var(--surface);
+}
+
+.is-complete .check-in-name {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.note-editor,
+.note {
+  width: 100%;
+}
+
+.note-editor textarea {
+  font: inherit;
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+}

@@ -1,13 +1,13 @@
 """Small builders for test data. Each test builds exactly what it needs."""
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app.core.security import hash_password
-from app.models import Habit, User
+from app.models import CheckIn, Habit, User
 
 DEFAULT_PASSWORD = "correct-horse-battery"
 
@@ -76,5 +76,34 @@ def create_habit(client: TestClient, **fields: object) -> dict[str, Any]:
     payload: dict[str, object] = {"name": "Read 10 pages", **fields}
     resp = client.post("/api/v1/habits", json=payload)
     assert resp.status_code == 201, resp.text
+    body: dict[str, Any] = resp.json()
+    return body
+
+
+def make_check_in(
+    db: Session,
+    *,
+    habit_id: str,
+    local_date: date,
+    completed_at: datetime,
+    note: str | None = None,
+) -> CheckIn:
+    check_in = CheckIn(
+        habit_id=habit_id, local_date=local_date, completed_at=completed_at, note=note
+    )
+    db.add(check_in)
+    db.commit()
+    db.refresh(check_in)
+    return check_in
+
+
+def check_in(
+    client: TestClient, habit_id: str, day: str, *, completed: bool = True, **fields: object
+) -> dict[str, Any]:
+    """Set a check-in through the API and assert success."""
+    resp = client.put(
+        f"/api/v1/habits/{habit_id}/check-ins/{day}", json={"completed": completed, **fields}
+    )
+    assert resp.status_code == 200, resp.text
     body: dict[str, Any] = resp.json()
     return body

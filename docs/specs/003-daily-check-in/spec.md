@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-26
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "Users mark a habit as done (or undo it) for today or a past day, with a quick one-tap interaction."
 
