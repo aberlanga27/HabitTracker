@@ -19,6 +19,14 @@ export function useHabits(archived = false): UseQueryResult<HabitList, ApiError>
   });
 }
 
+export function useHabit(id: string): UseQueryResult<HabitRead, ApiError> {
+  return useQuery<HabitRead, ApiError>({
+    queryKey: queryKeys.habits.detail(id),
+    queryFn: () => habitsApi.getHabit(id),
+    retry: false,
+  });
+}
+
 function useInvalidatingMutation<TData, TVars>(
   mutationFn: (vars: TVars) => Promise<TData>,
 ): UseMutationResult<TData, ApiError, TVars> {

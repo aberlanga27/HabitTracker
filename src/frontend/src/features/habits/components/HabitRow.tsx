@@ -1,4 +1,7 @@
 import { useState, type CSSProperties, type JSX } from 'react';
+import { Link } from 'react-router';
+
+import { StreakBadge } from '@/features/streaks';
 
 import {
   useArchiveHabit,
@@ -91,10 +94,13 @@ export function HabitRow({
           </span>
         )}
         <div className="habit-text">
-          <h3>{habit.name}</h3>
+          <h3>
+            <Link to={`/habits/${habit.id}`}>{habit.name}</Link>
+          </h3>
           <p className="habit-meta">{scheduleLabel(habit.schedule)}</p>
           {habit.description && <p className="habit-description">{habit.description}</p>}
         </div>
+        <StreakBadge current={habit.streak.current} />
       </div>
       <div className="row habit-actions">
         {variant === 'active' ? (

@@ -39,6 +39,7 @@ test.describe('spec 001 - User accounts @p1', () => {
 
   test('keyboard only: register and sign out without a pointer', async ({ page }) => {
     await page.goto('/register');
+    await expect(page.getByLabel('Email')).toBeVisible();
     await page.keyboard.press('Tab');
     await expect(page.getByLabel('Email')).toBeFocused();
     await page.keyboard.type(uniqueEmail());

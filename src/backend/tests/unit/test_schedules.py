@@ -5,6 +5,8 @@ from collections.abc import Sequence
 from datetime import date, timedelta
 
 import pytest
+
+from app.models import Schedule
 from app.services.schedules import (
     WEEKDAY_NAMES,
     Rule,
@@ -15,8 +17,6 @@ from app.services.schedules import (
     week_start,
     weekdays_to_mask,
 )
-
-from app.models import Schedule
 
 MON, TUE, WED, THU, FRI, SAT, SUN = range(7)
 WEEK = [date(2026, 9, 21) + timedelta(days=offset) for offset in range(7)]

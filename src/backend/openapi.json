@@ -377,6 +377,9 @@
           },
           "schedule": {
             "$ref": "#/components/schemas/ScheduleRead"
+          },
+          "streak": {
+            "$ref": "#/components/schemas/StreakRead"
           }
         },
         "required": [
@@ -388,7 +391,8 @@
           "position",
           "archived_at",
           "created_at",
-          "schedule"
+          "schedule",
+          "streak"
         ],
         "title": "HabitRead",
         "type": "object"
@@ -618,6 +622,65 @@
           "effective_from"
         ],
         "title": "ScheduleRead",
+        "type": "object"
+      },
+      "StreakRead": {
+        "properties": {
+          "current": {
+            "minimum": 0.0,
+            "title": "Current",
+            "type": "integer"
+          },
+          "current_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Start"
+          },
+          "longest": {
+            "minimum": 0.0,
+            "title": "Longest",
+            "type": "integer"
+          },
+          "longest_end": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longest End"
+          },
+          "longest_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longest Start"
+          }
+        },
+        "required": [
+          "current",
+          "current_start",
+          "longest",
+          "longest_start",
+          "longest_end"
+        ],
+        "title": "StreakRead",
         "type": "object"
       },
       "UserRead": {

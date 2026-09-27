@@ -6,6 +6,10 @@ export function listHabits(archived: boolean): Promise<HabitList> {
   return apiRequest<HabitList>('GET', `/habits?archived=${archived}`);
 }
 
+export function getHabit(id: string): Promise<HabitRead> {
+  return apiRequest<HabitRead>('GET', `/habits/${id}`);
+}
+
 export function createHabit(body: HabitCreate): Promise<HabitRead> {
   return apiRequest<HabitRead>('POST', '/habits', body);
 }

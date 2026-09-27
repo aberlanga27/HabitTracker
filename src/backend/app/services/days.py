@@ -1,52 +1,52 @@
 """Day summary: which habits are due on a local date and their completion (spec 005 FR-004)."""
 
-from collections import defaultdict
 from datetime import date, timedelta
 
 from sqlmodel import Session, col, select
 
+from app.core.auth import Viewer
 from app.models import CheckIn
 from app.schemas.days import DayHabit, DaySummary, WeekProgress
 from app.services import habits as habit_service
 from app.services import schedules as schedule_service
 
 
-def day_summary(session: Session, user_id: str, day: date, *, today: date) -> DaySummary:
+def day_summary(session: Session, viewer: Viewer, day: date) -> DaySummary:
     """Active habits due or done-for-the-week on `day`, ordered by position."""
-    habits = habit_service.active_habits(session, user_id)
+    habits = habit_service.active_habits(session, viewer.user_id)
     habit_ids = [habit.id for habit in habits]
     schedules = schedule_service.load_schedules(session, habit_ids)
+    completed = habit_service.completed_dates(session, habit_ids)
+    notes = dict(
+        session.exec(
+            select(CheckIn.habit_id, CheckIn.note).where(
+                col(CheckIn.habit_id).in_(habit_ids), CheckIn.local_date == day
+            )
+        ).all()
+    )
     start = schedule_service.week_start(day)
-    week_rows = session.exec(
-        select(CheckIn).where(
-            col(CheckIn.habit_id).in_(habit_ids),
-            col(CheckIn.local_date) >= start,
-            col(CheckIn.local_date) <= start + timedelta(days=6),
-        )
-    ).all()
-    week: dict[str, list[CheckIn]] = defaultdict(list)
-    for row in week_rows:
-        week[row.habit_id].append(row)
+    end = start + timedelta(days=6)
 
     items: list[DayHabit] = []
     for habit in habits:
         rule = schedule_service.rule_of(schedule_service.schedule_on(schedules[habit.id], day))
-        rows = week[habit.id]
-        before = sum(1 for row in rows if row.local_date < day)
+        week = sorted(d for d in completed[habit.id] if start <= d <= end)
+        before = sum(1 for d in week if d < day)
         due = schedule_service.is_due(rule, day, before)
         if not due and rule.type != schedule_service.TIMES_PER_WEEK:
             continue
-        on_day = next((row for row in rows if row.local_date == day), None)
         progress = None
         if rule.type == schedule_service.TIMES_PER_WEEK and rule.times_per_week is not None:
-            through = sum(1 for row in rows if row.local_date <= day)
+            through = sum(1 for d in week if d <= day)
             progress = WeekProgress(completed=through, target=rule.times_per_week)
         items.append(
             DayHabit(
-                habit=habit_service.to_read(habit, schedules[habit.id], today),
+                habit=habit_service.to_read(
+                    habit, schedules[habit.id], completed[habit.id], viewer
+                ),
                 status="due" if due else "done_for_week",
-                completed=on_day is not None,
-                note=on_day.note if on_day else None,
+                completed=day in completed[habit.id],
+                note=notes.get(habit.id),
                 week=progress,
             )
         )

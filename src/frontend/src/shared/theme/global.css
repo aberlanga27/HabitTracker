@@ -382,6 +382,22 @@ a.button {
   font-size: var(--font-size-sm);
 }
 
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+}
+
+.habit-summary h3 a {
+  color: var(--text);
+}
+
 .schedule-picker,
 .schedule-picker fieldset {
   border: 0;

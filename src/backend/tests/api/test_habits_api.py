@@ -118,6 +118,13 @@ def test_us1_s1_fr001_create_habit_returns_habit_with_defaults(client: TestClien
             "times_per_week": None,
             "effective_from": NOW_ISO[:10],
         },
+        "streak": {
+            "current": 0,
+            "current_start": None,
+            "longest": 0,
+            "longest_start": None,
+            "longest_end": None,
+        },
     }
 
 
