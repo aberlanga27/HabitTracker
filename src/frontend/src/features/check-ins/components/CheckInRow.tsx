@@ -1,27 +1,20 @@
 import type { CSSProperties, JSX } from 'react';
 
 import { useToggleCheckIn } from '../hooks/use-check-ins';
-import type { CheckInState } from '../types';
+import type { DayHabit } from '../types';
 import { CheckInButton } from './CheckInButton';
 import { NoteEditor } from './NoteEditor';
 
 export interface CheckInRowProps {
-  habit: { id: string; name: string; icon: string | null };
+  item: DayHabit;
   colorToken: string;
   date: string;
-  state: CheckInState | undefined;
   editable: boolean;
 }
 
-export function CheckInRow({
-  habit,
-  colorToken,
-  date,
-  state,
-  editable,
-}: CheckInRowProps): JSX.Element {
+export function CheckInRow({ item, colorToken, date, editable }: CheckInRowProps): JSX.Element {
+  const { habit, completed, note, week, status } = item;
   const toggle = useToggleCheckIn(date);
-  const completed = state?.completed ?? false;
 
   return (
     <li
@@ -35,13 +28,22 @@ export function CheckInRow({
         disabled={!editable || toggle.isPending}
         onToggle={() => toggle.mutate({ habitId: habit.id, completed: !completed })}
       />
+      {status === 'done_for_week' ? (
+        <span className="habit-meta">✓ Done for this week</span>
+      ) : (
+        week && (
+          <span className="habit-meta">
+            {week.completed} of {week.target} this week
+          </span>
+        )
+      )}
       {completed && (
         <NoteEditor
-          key={state?.note ?? ''}
+          key={note ?? ''}
           habitId={habit.id}
           habitName={habit.name}
           date={date}
-          note={state?.note ?? null}
+          note={note}
           editable={editable}
         />
       )}

@@ -1,6 +1,4 @@
 import type { components } from '@/shared/types/api.generated';
 
-export type CheckInState = components['schemas']['CheckInState'];
-export type CheckInSet = components['schemas']['CheckInSet'];
 export type DaySummary = components['schemas']['DaySummary'];
 export type DayHabit = components['schemas']['DayHabit'];

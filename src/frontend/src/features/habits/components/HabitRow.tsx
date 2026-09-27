@@ -7,9 +7,10 @@ import {
   useUpdateHabit,
 } from '../hooks/use-habits';
 import { colorToken } from '../palette';
+import { scheduleLabel } from '../schedule-label';
 import type { HabitRead } from '../types';
 import { DeleteHabitConfirm } from './DeleteHabitConfirm';
-import { HabitForm } from './HabitForm';
+import { DEFAULT_SCHEDULE, HabitForm } from './HabitForm';
 
 export interface HabitRowProps {
   habit: HabitRead;
@@ -48,6 +49,11 @@ export function HabitRow({
             description: habit.description ?? '',
             icon: habit.icon,
             color: habit.color,
+            schedule: {
+              type: habit.schedule.type,
+              weekdays: habit.schedule.weekdays,
+              timesPerWeek: habit.schedule.times_per_week ?? DEFAULT_SCHEDULE.timesPerWeek,
+            },
           }}
           pending={update.isPending}
           errorMessage={update.error?.message}
@@ -86,6 +92,7 @@ export function HabitRow({
         )}
         <div className="habit-text">
           <h3>{habit.name}</h3>
+          <p className="habit-meta">{scheduleLabel(habit.schedule)}</p>
           {habit.description && <p className="habit-description">{habit.description}</p>}
         </div>
       </div>

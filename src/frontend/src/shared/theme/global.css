@@ -376,6 +376,38 @@ a.button {
   width: 100%;
 }
 
+.habit-meta {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.schedule-picker,
+.schedule-picker fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.schedule-picker legend {
+  font-weight: 600;
+}
+
+.inline-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 32px;
+}
+
+.inline-choice abbr {
+  text-decoration: none;
+}
+
+.field input[type='number'] {
+  max-width: 6rem;
+}
+
 .note-editor textarea {
   font: inherit;
   padding: var(--space-2);

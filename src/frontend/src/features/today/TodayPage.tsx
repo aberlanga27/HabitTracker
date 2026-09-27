@@ -2,18 +2,19 @@ import type { JSX } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
 import { useMe } from '@/features/auth';
-import { CheckInRow, dateStatus, useCheckIns, type DateStatus } from '@/features/check-ins';
+import { CheckInRow, dateStatus, type DateStatus } from '@/features/check-ins';
 import { colorToken, useHabits } from '@/features/habits';
 import { formatDayLabel, isIsoDate, localToday } from '@/shared/lib/dates';
 
 import { DayNav } from './DayNav';
+import { useDay } from './use-day';
 
 const DISABLED_REASON: Record<Exclude<DateStatus, 'editable'>, string> = {
   future: "You can't check in for future dates.",
   'too-old': 'Check-ins are limited to the last 30 days.',
 };
 
-// Interim day view: active habits with check-in toggles; spec 006 adds the day summary.
+// Day view: habits due on the selected date with check-in toggles; spec 006 adds progress.
 export function TodayPage(): JSX.Element {
   const me = useMe();
   const today = localToday(me.data?.timezone ?? 'UTC');
@@ -22,8 +23,8 @@ export function TodayPage(): JSX.Element {
   const date = isIsoDate(requested) ? requested : today;
   const status = dateStatus(date, today);
   const habits = useHabits(false);
-  const checkIns = useCheckIns(date);
-  const loaded = !checkIns.isPlaceholderData;
+  const day = useDay(date);
+  const loaded = !day.isPlaceholderData;
 
   return (
     <section aria-labelledby="today-heading" className="stack">
@@ -35,23 +36,24 @@ export function TodayPage(): JSX.Element {
         onChange={(next) => setParams(next === today ? {} : { date: next })}
       />
       {status !== 'editable' && <p className="notice">{DISABLED_REASON[status]}</p>}
-      {habits.isPending || checkIns.isPending ? (
+      {habits.isPending || day.isPending ? (
         <p className="page-loading">Loading habits…</p>
       ) : habits.data && habits.data.items.length > 0 ? (
-        <ul className="habit-list" aria-label={`Habits for ${formatDayLabel(date)}`}>
-          {habits.data.items.map((habit) => (
-            <CheckInRow
-              key={habit.id}
-              habit={habit}
-              colorToken={colorToken(habit.color)}
-              date={date}
-              state={
-                loaded ? checkIns.data?.items.find((item) => item.habit_id === habit.id) : undefined
-              }
-              editable={status === 'editable' && loaded}
-            />
-          ))}
-        </ul>
+        day.data && day.data.items.length > 0 ? (
+          <ul className="habit-list" aria-label={`Habits for ${formatDayLabel(date)}`}>
+            {day.data.items.map((item) => (
+              <CheckInRow
+                key={item.habit.id}
+                item={item}
+                colorToken={colorToken(item.habit.color)}
+                date={date}
+                editable={status === 'editable' && loaded}
+              />
+            ))}
+          </ul>
+        ) : (
+          <p className="empty-state">Nothing is scheduled for this day.</p>
+        )
       ) : (
         <div className="empty-state stack">
           <p>No habits yet.</p>

@@ -4,8 +4,6 @@ export const queryKeys = {
     all: () => ['habits'] as const,
     list: (filter: { archived: boolean }) => ['habits', 'list', filter] as const,
   },
-  checkIns: {
-    all: () => ['check-ins'] as const,
-    day: (date: string) => ['check-ins', date] as const,
-  },
+  days: () => ['day'] as const,
+  day: (date: string) => ['day', date] as const,
 };

@@ -29,7 +29,7 @@ test.describe('spec 003 - Daily check-in @p1', () => {
     await page.reload();
     await expect(habit).toHaveAttribute('aria-pressed', 'false');
 
-    const dayLoaded = page.waitForResponse(/\/api\/v1\/check-ins\?date=/);
+    const dayLoaded = page.waitForResponse(/\/api\/v1\/days\/\d{4}-\d{2}-\d{2}$/);
     await page.getByRole('button', { name: /Previous day/ }).click();
     await dayLoaded;
     await expect(page).toHaveURL(/\?date=\d{4}-\d{2}-\d{2}$/);

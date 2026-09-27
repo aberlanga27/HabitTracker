@@ -229,7 +229,7 @@ describe('spec 005 - Habit schedules', () => {
     );
     renderApp('/habits');
     await userEvent.click(await screen.findByRole('button', { name: 'Edit Read 10 pages' }));
-    await userEvent.click(screen.getByRole('radio', { name: 'Times per week' }));
+    await userEvent.click(within(activeList()).getByRole('radio', { name: 'Times per week' }));
     await userEvent.click(screen.getByRole('button', { name: /^save/i }));
     await vi.waitFor(() =>
       expect(sent).toMatchObject({ schedule: { type: 'times_per_week', times_per_week: 3 } }),
