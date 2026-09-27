@@ -1,11 +1,12 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { delay, http } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { dayBackend, failingCheckInPut, type DayStatus } from '@/test/day-backend';
 import { habit, habitsBackend } from '@/test/habits-backend';
 import { axeViolations, renderApp } from '@/test/render';
-import { ana, server, sessionHandlers } from '@/test/server';
+import { ana, API, server, sessionHandlers } from '@/test/server';
 
 const read = habit({ name: 'Read 10 pages', position: 0 });
 
@@ -183,7 +184,7 @@ describe('spec 003 US3 - Add a note', () => {
     await userEvent.type(field, 'ran 5k in the rain');
     await userEvent.click(screen.getByRole('button', { name: /save note/i }));
 
-    const list = screen.getByRole('list', { name: /habits for/i });
+    const list = screen.getByRole('list', { name: 'Done' });
     expect(await within(list).findByText('ran 5k in the rain')).toBeInTheDocument();
     expect(backend.states.get(`${read.id}|2026-09-26`)?.note).toBe('ran 5k in the rain');
   });
@@ -238,14 +239,125 @@ describe('spec 005 - Schedules on Today', () => {
   it('US3-S1: a 3x/week habit with 2 check-ins shows "2 of 3 this week"', async () => {
     setup([], [read], () => ({ status: 'due', week: { completed: 2, target: 3 } }));
     renderApp('/');
-    const list = await screen.findByRole('list', { name: /habits for/i });
+    const list = await screen.findByRole('list', { name: 'To do' });
     expect(await within(list).findByText('2 of 3 this week')).toBeInTheDocument();
   });
 
   it('US3-S2: a 3x/week habit with 3 check-ins shows "Done for this week"', async () => {
     setup([], [read], () => ({ status: 'done_for_week', week: { completed: 3, target: 3 } }));
     renderApp('/');
-    const list = await screen.findByRole('list', { name: /habits for/i });
+    const list = await screen.findByRole('list', { name: 'Done' });
     expect(await within(list).findByText(/done for this week/i)).toBeInTheDocument();
+  });
+});
+
+function fiveHabits(): ReturnType<typeof habit>[] {
+  return ['A', 'B', 'C', 'D', 'E'].map((name, position) =>
+    habit({ name: `Habit ${name}`, position }),
+  );
+}
+
+function doneOn(habits: ReturnType<typeof habit>[], date = '2026-09-26'): CheckIns {
+  return habits.map((h) => ({
+    habit_id: h.id,
+    date,
+    completed: true,
+    note: null,
+    completed_at: `${date}T08:00:00Z`,
+  }));
+}
+
+describe('spec 006 US1 - See today at a glance', () => {
+  it('given 5 due habits with 3 complete, then progress shows "3 of 5" and 60%', async () => {
+    const habits = fiveHabits();
+    setup(doneOn(habits.slice(0, 3)), habits);
+    renderApp('/');
+    expect(await screen.findByText('3 of 5 habits done')).toHaveAttribute('aria-live', 'polite');
+    expect(screen.getByRole('progressbar', { name: /daily progress/i })).toHaveAttribute(
+      'aria-valuenow',
+      '60',
+    );
+  });
+
+  it('given zero habits, then an empty state with "Create your first habit" is shown', async () => {
+    setup([], []);
+    renderApp('/');
+    expect(await screen.findByRole('link', { name: /create your first habit/i })).toBeVisible();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
+  it('given all habits complete, then "All done for today" is shown', async () => {
+    const habits = fiveHabits().slice(0, 2);
+    setup(doneOn(habits), habits);
+    renderApp('/');
+    expect(await screen.findByText(/all done for today/i)).toBeVisible();
+  });
+
+  it('given habits but none due, then it says nothing is scheduled', async () => {
+    setup([], [read], () => null);
+    renderApp('/');
+    expect(await screen.findByText(/nothing is scheduled for this day/i)).toBeVisible();
+  });
+
+  it('FR-006: toggling announces the new progress immediately', async () => {
+    const habits = fiveHabits();
+    setup(doneOn(habits.slice(0, 3)), habits);
+    renderApp('/');
+    await screen.findByText('3 of 5 habits done');
+    await userEvent.click(screen.getByRole('button', { name: 'Habit D' }));
+    expect(screen.getByText('4 of 5 habits done')).toBeInTheDocument();
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '80');
+  });
+
+  it('shows skeleton rows while loading instead of a spinner', async () => {
+    setup();
+    server.use(http.get(`${API}/days/:date`, () => delay('infinite')));
+    renderApp('/');
+    expect(await screen.findByRole('region', { name: 'Loading habits' })).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
+  });
+
+  it('has no detectable accessibility violations with progress and sections', async () => {
+    const habits = fiveHabits();
+    setup(doneOn(habits.slice(0, 2)), habits);
+    const { container } = renderApp('/');
+    await screen.findByText('2 of 5 habits done');
+    expect(await axeViolations(container)).toEqual([]);
+  });
+});
+
+describe('spec 006 US3 - Group by completion', () => {
+  it('given a due habit, when completed, then it moves to the Done section without reload', async () => {
+    setup();
+    renderApp('/');
+    const todo = await screen.findByRole('list', { name: 'To do' });
+    await userEvent.click(within(todo).getByRole('button', { name: 'Read 10 pages' }));
+    const done = await screen.findByRole('list', { name: 'Done' });
+    expect(within(done).getByRole('button', { name: 'Read 10 pages' })).toBeInTheDocument();
+    expect(screen.queryByRole('list', { name: 'To do' })).not.toBeInTheDocument();
+  });
+});
+
+describe('spec 006 edge - midnight rollover', () => {
+  it('given the tab stays open, when local midnight passes, then the header shows the new day', async () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
+    vi.setSystemTime(new Date('2026-09-26T23:59:50Z'));
+    setup();
+    renderApp('/');
+    expect(await screen.findByText('Saturday, 26 September 2026')).toBeInTheDocument();
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(await screen.findByText('Sunday, 27 September 2026')).toBeInTheDocument();
+  });
+
+  it('keeps an explicitly chosen date when midnight passes', async () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
+    vi.setSystemTime(new Date('2026-09-26T23:59:50Z'));
+    setup();
+    renderApp('/?date=2026-09-25');
+    const heading = await screen.findByRole('heading', { name: 'Friday, 25 September 2026' });
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(heading).toHaveTextContent('Friday, 25 September 2026');
   });
 });

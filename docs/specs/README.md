@@ -24,7 +24,7 @@ Status values are `Draft` (written), `Clarified` (ambiguities resolved), `Planne
 | 003 | `003-daily-check-in` | Daily Check-In | One-tap complete/undo for today, backfill up to 30 days, optional note. | MVP | Implemented |
 | 004 | `004-streak-tracking` | Streak Tracking | Current and longest streak per habit, schedule-aware. | MVP | Implemented |
 | 005 | `005-habit-schedules` | Habit Schedules | Daily, specific weekdays, or N times per week; "due today" logic. | MVP | Implemented |
-| 006 | `006-today-dashboard` | Today Dashboard | Home screen with due habits, progress, day navigation, empty/all-done states. | MVP | Draft |
+| 006 | `006-today-dashboard` | Today Dashboard | Home screen with due habits, progress, day navigation, empty/all-done states. | MVP | Implemented |
 | 007 | `007-history-calendar` | History Calendar | 12-month heatmap per habit and overall; jump to a day. | Core | Draft |
 | 008 | `008-reminders` | Reminders | Daily reminder time per habit with in-app banner and browser notification. | Core | Draft |
 | 009 | `009-stats-insights` | Stats & Insights | Completion rates (7/30/90 days), totals, best weekday, simple trend. | Core | Draft |

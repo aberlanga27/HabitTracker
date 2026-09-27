@@ -1,0 +1,29 @@
+openapi: 3.1.0
+info:
+  title: Habitude API - Day summary counts (spec 006)
+  version: "1"
+paths:
+  /api/v1/days/{date}:
+    get:
+      summary: Day summary with progress counts (FR-001, FR-002, FR-005)
+      parameters:
+        - { name: date, in: path, required: true, schema: { type: string, format: date } }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DaySummary" }
+components:
+  schemas:
+    DaySummary:
+      description: Spec 005 DaySummary plus counts.
+      type: object
+      required: [date, items, due_count, completed_count, habit_count]
+      properties:
+        date: { type: string, format: date }
+        items:
+          type: array
+          items: { $ref: "../../005-habit-schedules/contracts/schedules.openapi.yaml#/components/schemas/DayHabit" }
+        due_count: { type: integer, minimum: 0 }
+        completed_count: { type: integer, minimum: 0 }
+        habit_count: { type: integer, minimum: 0 }

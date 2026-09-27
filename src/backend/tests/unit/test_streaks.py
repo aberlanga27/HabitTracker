@@ -4,9 +4,9 @@ import random
 from datetime import date, timedelta
 
 import pytest
-from app.services.streaks import Streak, compute_streak
 
 from app.models import Schedule
+from app.services.streaks import Streak, compute_streak
 from tests.factories import build_schedule
 
 MWF = 21  # Mon | Wed | Fri

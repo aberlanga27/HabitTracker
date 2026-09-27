@@ -36,7 +36,13 @@ export function emptyDataHandlers(): ReturnType<typeof http.get>[] {
   return [
     http.get(`${API}/habits`, () => HttpResponse.json({ items: [], total: 0 })),
     http.get(`${API}/days/:date`, ({ params }) =>
-      HttpResponse.json({ date: String(params.date), items: [] }),
+      HttpResponse.json({
+        date: String(params.date),
+        items: [],
+        due_count: 0,
+        completed_count: 0,
+        habit_count: 0,
+      }),
     ),
   ];
 }

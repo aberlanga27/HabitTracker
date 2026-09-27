@@ -17,14 +17,13 @@ interface ToggleContext {
 
 function applyToggle(day: DaySummary | undefined, vars: ToggleVars): DaySummary | undefined {
   if (!day) return day;
-  return {
-    ...day,
-    items: day.items.map((item) =>
-      item.habit.id === vars.habitId
-        ? { ...item, completed: vars.completed, note: vars.completed ? item.note : null }
-        : item,
-    ),
-  };
+  const items = day.items.map((item) =>
+    item.habit.id === vars.habitId
+      ? { ...item, completed: vars.completed, note: vars.completed ? item.note : null }
+      : item,
+  );
+  const completed = items.filter((item) => item.status === 'due' && item.completed).length;
+  return { ...day, items, completed_count: completed };
 }
 
 function invalidateAfterCheckIn(queryClient: ReturnType<typeof useQueryClient>): void {

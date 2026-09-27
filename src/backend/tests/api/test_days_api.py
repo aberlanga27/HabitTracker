@@ -120,12 +120,21 @@ def test_fr004_day_summary_lists_due_habit_with_completion(client: TestClient) -
         "items": [
             {"habit": habit, "status": "due", "completed": False, "note": None, "week": None}
         ],
+        "due_count": 1,
+        "completed_count": 0,
+        "habit_count": 1,
     }
 
 
 @pytest.mark.usefixtures("ana_id")
 def test_fr004_day_summary_for_user_without_habits_is_empty(client: TestClient) -> None:
-    assert _day(client, TODAY) == {"date": TODAY, "items": []}
+    assert _day(client, TODAY) == {
+        "date": TODAY,
+        "items": [],
+        "due_count": 0,
+        "completed_count": 0,
+        "habit_count": 0,
+    }
 
 
 @pytest.mark.usefixtures("monday_ana")
