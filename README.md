@@ -93,6 +93,8 @@ cd src/backend && ../../.venv/bin/alembic upgrade head && ../../.venv/bin/uvicor
 cd src/frontend && npm install && npm run dev
 ```
 
+Or run both at once from the repo root with `make demo` (Ctrl+C stops both).
+
 See [AGENTS.md](AGENTS.md) for test, lint, and type-check commands.
 
 ## Using the Spec Kit workflow
