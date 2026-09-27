@@ -96,6 +96,77 @@
         "title": "CheckInState",
         "type": "object"
       },
+      "DayHabit": {
+        "properties": {
+          "completed": {
+            "title": "Completed",
+            "type": "boolean"
+          },
+          "habit": {
+            "$ref": "#/components/schemas/HabitRead"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "status": {
+            "enum": [
+              "due",
+              "done_for_week"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "week": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WeekProgress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "habit",
+          "status",
+          "completed",
+          "note",
+          "week"
+        ],
+        "title": "DayHabit",
+        "type": "object"
+      },
+      "DaySummary": {
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DayHabit"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "date",
+          "items"
+        ],
+        "title": "DaySummary",
+        "type": "object"
+      },
       "ErrorBody": {
         "properties": {
           "code": {
@@ -189,6 +260,9 @@
             "minLength": 1,
             "title": "Name",
             "type": "string"
+          },
+          "schedule": {
+            "$ref": "#/components/schemas/ScheduleIn"
           }
         },
         "required": [
@@ -300,6 +374,9 @@
           "position": {
             "title": "Position",
             "type": "integer"
+          },
+          "schedule": {
+            "$ref": "#/components/schemas/ScheduleRead"
           }
         },
         "required": [
@@ -310,7 +387,8 @@
           "color",
           "position",
           "archived_at",
-          "created_at"
+          "created_at",
+          "schedule"
         ],
         "title": "HabitRead",
         "type": "object"
@@ -373,6 +451,16 @@
               }
             ],
             "title": "Name"
+          },
+          "schedule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScheduleIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "title": "HabitUpdate",
@@ -422,6 +510,114 @@
           "password"
         ],
         "title": "RegisterRequest",
+        "type": "object"
+      },
+      "ScheduleIn": {
+        "description": "A schedule rule; fields irrelevant to `type` are ignored (FR-002, FR-003).",
+        "properties": {
+          "times_per_week": {
+            "anyOf": [
+              {
+                "maximum": 7.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Times Per Week"
+          },
+          "type": {
+            "enum": [
+              "daily",
+              "weekdays",
+              "times_per_week"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "weekdays": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "mon",
+                    "tue",
+                    "wed",
+                    "thu",
+                    "fri",
+                    "sat",
+                    "sun"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weekdays"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "ScheduleIn",
+        "type": "object"
+      },
+      "ScheduleRead": {
+        "properties": {
+          "effective_from": {
+            "format": "date",
+            "title": "Effective From",
+            "type": "string"
+          },
+          "times_per_week": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Times Per Week"
+          },
+          "type": {
+            "enum": [
+              "daily",
+              "weekdays",
+              "times_per_week"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "weekdays": {
+            "items": {
+              "enum": [
+                "mon",
+                "tue",
+                "wed",
+                "thu",
+                "fri",
+                "sat",
+                "sun"
+              ],
+              "type": "string"
+            },
+            "title": "Weekdays",
+            "type": "array"
+          }
+        },
+        "required": [
+          "type",
+          "weekdays",
+          "times_per_week",
+          "effective_from"
+        ],
+        "title": "ScheduleRead",
         "type": "object"
       },
       "UserRead": {
@@ -491,6 +687,24 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "WeekProgress": {
+        "properties": {
+          "completed": {
+            "title": "Completed",
+            "type": "integer"
+          },
+          "target": {
+            "title": "Target",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "completed",
+          "target"
+        ],
+        "title": "WeekProgress",
         "type": "object"
       }
     }
@@ -820,6 +1034,75 @@
         "summary": "List Check Ins",
         "tags": [
           "check-ins"
+        ]
+      }
+    },
+    "/api/v1/days/{date}": {
+      "get": {
+        "operationId": "get_day_api_v1_days__date__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "Date",
+              "type": "string"
+            }
+          },
+          {
+            "in": "cookie",
+            "name": "habitude_session",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Habitude Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DaySummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Get Day",
+        "tags": [
+          "days"
         ]
       }
     },

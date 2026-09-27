@@ -112,6 +112,12 @@ def test_us1_s1_fr001_create_habit_returns_habit_with_defaults(client: TestClien
         "position": 0,
         "archived_at": None,
         "created_at": NOW_ISO,
+        "schedule": {
+            "type": "daily",
+            "weekdays": [],
+            "times_per_week": None,
+            "effective_from": NOW_ISO[:10],
+        },
     }
 
 

@@ -5,10 +5,12 @@ from pydantic import (
     AfterValidator,
     BaseModel,
     BeforeValidator,
-    ConfigDict,
+    Field,
     StringConstraints,
     field_validator,
 )
+
+from app.schemas.schedules import ScheduleIn, ScheduleRead
 
 HabitColor = Literal["coral", "amber", "lime", "teal", "sky", "indigo", "violet", "rose"]
 
@@ -48,6 +50,7 @@ class HabitCreate(BaseModel):
     description: Description = None
     icon: Icon = None
     color: HabitColor = "coral"
+    schedule: ScheduleIn = Field(default_factory=lambda: ScheduleIn(type="daily"))
 
 
 class HabitUpdate(BaseModel):
@@ -57,18 +60,17 @@ class HabitUpdate(BaseModel):
     description: Description = None
     icon: Icon = None
     color: HabitColor | None = None
+    schedule: ScheduleIn | None = None
 
-    @field_validator("name", "color")
+    @field_validator("name", "color", "schedule")
     @classmethod
-    def _not_null(cls, value: str | None) -> str:
+    def _not_null(cls, value: object) -> object:
         if value is None:
             raise ValueError("may not be null")
         return value
 
 
 class HabitRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
     id: str
     name: str
     description: str | None
@@ -77,6 +79,7 @@ class HabitRead(BaseModel):
     position: int
     archived_at: datetime | None
     created_at: datetime
+    schedule: ScheduleRead
 
 
 class HabitList(BaseModel):

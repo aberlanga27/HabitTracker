@@ -1,11 +1,11 @@
 """Current-user dependency backed by the session cookie."""
 
-from datetime import timedelta
+from datetime import date, timedelta
 from typing import Annotated
 
 from fastapi import Cookie, Depends
 
-from app.core.clock import Clock, get_clock
+from app.core.clock import Clock, get_clock, local_date
 from app.core.config import get_settings
 from app.core.db import SessionDep
 from app.models import User
@@ -31,3 +31,11 @@ def get_current_user(
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+def get_today(user: CurrentUser, clock: ClockDep) -> date:
+    """The current user's local calendar date."""
+    return local_date(clock.now(), user.timezone)
+
+
+TodayDep = Annotated[date, Depends(get_today)]

@@ -15,7 +15,7 @@ from sqlmodel import Session, select
 
 from app.core.db import build_engine
 from app.models import CheckIn, Habit, Schedule
-from tests.factories import check_in, create_habit, make_habit, make_user, register
+from tests.factories import check_in, create_habit, make_user, register
 from tests.fakes import FrozenClock
 
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
@@ -257,10 +257,11 @@ def test_fr001_migration_0005_backfills_daily_schedule_for_existing_habits(
     created_at = datetime(2026, 9, 20, 23, 30, tzinfo=UTC)
     with Session(engine) as db:
         user = make_user(db, created_at=created_at)
-        habit_ids = {
-            make_habit(db, user_id=user.id, created_at=created_at, name=name).id
-            for name in ("Read", "Walk")
-        }
+        # Raw rows: make_habit also writes a schedule, which does not exist before 0005.
+        habits = [Habit(user_id=user.id, name=name, created_at=created_at) for name in ("R", "W")]
+        db.add_all(habits)
+        db.commit()
+        habit_ids = {habit.id for habit in habits}
     command.upgrade(config, "head")
     with Session(engine) as db:
         values = {
