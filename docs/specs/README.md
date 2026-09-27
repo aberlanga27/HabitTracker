@@ -21,7 +21,7 @@ Status values are `Draft` (written), `Clarified` (ambiguities resolved), `Planne
 |---|--------|-------|---------|------|--------|
 | 001 | `001-user-accounts` | User Accounts | Register, sign in, stay signed in, sign out; sessions and lockout. | MVP | Implemented |
 | 002 | `002-habit-management` | Habit Management | Create, edit, archive, restore, delete, and reorder habits. | MVP | Implemented |
-| 003 | `003-daily-check-in` | Daily Check-In | One-tap complete/undo for today, backfill up to 30 days, optional note. | MVP | Draft |
+| 003 | `003-daily-check-in` | Daily Check-In | One-tap complete/undo for today, backfill up to 30 days, optional note. | MVP | Implemented |
 | 004 | `004-streak-tracking` | Streak Tracking | Current and longest streak per habit, schedule-aware. | MVP | Draft |
 | 005 | `005-habit-schedules` | Habit Schedules | Daily, specific weekdays, or N times per week; "due today" logic. | MVP | Draft |
 | 006 | `006-today-dashboard` | Today Dashboard | Home screen with due habits, progress, day navigation, empty/all-done states. | MVP | Draft |
