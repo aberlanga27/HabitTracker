@@ -1,11 +1,12 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { delay, http } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { dayBackend, failingCheckInPut, type DayStatus } from '@/test/day-backend';
 import { habit, habitsBackend } from '@/test/habits-backend';
 import { axeViolations, renderApp } from '@/test/render';
-import { ana, server, sessionHandlers } from '@/test/server';
+import { ana, API, server, sessionHandlers } from '@/test/server';
 
 const read = habit({ name: 'Read 10 pages', position: 0 });
 
@@ -308,15 +309,13 @@ describe('spec 006 US1 - See today at a glance', () => {
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '80');
   });
 
-  it('shows skeleton rows while loading instead of a spinner', () => {
+  it('shows skeleton rows while loading instead of a spinner', async () => {
     setup();
+    server.use(http.get(`${API}/days/:date`, () => delay('infinite')));
     renderApp('/');
-    // The session query resolves first; the skeleton appears while the day loads.
-    return vi.waitFor(() =>
-      expect(screen.getByRole('region', { name: 'Loading habits' })).toHaveAttribute(
-        'aria-busy',
-        'true',
-      ),
+    expect(await screen.findByRole('region', { name: 'Loading habits' })).toHaveAttribute(
+      'aria-busy',
+      'true',
     );
   });
 
