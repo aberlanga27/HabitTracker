@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-26
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "Habits can be daily, on specific weekdays, or N times per week, so the Today view only shows what is due."
 

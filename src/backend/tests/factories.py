@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app.core.security import hash_password
-from app.models import CheckIn, Habit, User
+from app.models import CheckIn, Habit, Schedule, User
 
 DEFAULT_PASSWORD = "correct-horse-battery"
 
@@ -66,6 +66,8 @@ def make_habit(
         created_at=created_at,
     )
     db.add(habit)
+    db.flush()
+    db.add(Schedule(habit_id=habit.id, effective_from=created_at.date()))
     db.commit()
     db.refresh(habit)
     return habit

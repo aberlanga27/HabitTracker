@@ -3,6 +3,7 @@
 from datetime import date
 
 import pytest
+
 from app.services.check_ins import editable_window, is_editable
 
 TODAY = date(2026, 9, 26)

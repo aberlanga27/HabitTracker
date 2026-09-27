@@ -2,9 +2,10 @@ import { useState, type FormEvent, type JSX } from 'react';
 
 import { TextField } from '@/shared/ui';
 
-import type { HabitColor, HabitCreate } from '../types';
+import type { HabitColor, HabitCreate, ScheduleIn } from '../types';
 import { ColorPicker } from './ColorPicker';
 import { EmojiPicker } from './EmojiPicker';
+import { SchedulePicker, type ScheduleValue } from './SchedulePicker';
 
 const MAX_NAME = 80;
 const MAX_DESCRIPTION = 500;
@@ -14,9 +15,18 @@ export interface HabitFormValues {
   description: string;
   icon: string | null;
   color: HabitColor;
+  schedule: ScheduleValue;
 }
 
-const EMPTY: HabitFormValues = { name: '', description: '', icon: null, color: 'coral' };
+export const DEFAULT_SCHEDULE: ScheduleValue = { type: 'daily', weekdays: [], timesPerWeek: 3 };
+
+const EMPTY: HabitFormValues = {
+  name: '',
+  description: '',
+  icon: null,
+  color: 'coral',
+  schedule: DEFAULT_SCHEDULE,
+};
 
 export interface HabitFormProps {
   idPrefix: string;
@@ -31,6 +41,7 @@ export interface HabitFormProps {
 interface FieldErrors {
   name?: string;
   description?: string;
+  schedule?: string;
 }
 
 function validate(values: HabitFormValues): FieldErrors {
@@ -41,7 +52,21 @@ function validate(values: HabitFormValues): FieldErrors {
   if (values.description.trim().length > MAX_DESCRIPTION) {
     errors.description = `Description must be at most ${MAX_DESCRIPTION} characters.`;
   }
+  const { type, weekdays, timesPerWeek } = values.schedule;
+  if (type === 'weekdays' && weekdays.length === 0) errors.schedule = 'Choose at least one day.';
+  if (
+    type === 'times_per_week' &&
+    !(Number.isInteger(timesPerWeek) && timesPerWeek >= 1 && timesPerWeek <= 7)
+  ) {
+    errors.schedule = 'Choose between 1 and 7 times per week.';
+  }
   return errors;
+}
+
+function toScheduleIn({ type, weekdays, timesPerWeek }: ScheduleValue): ScheduleIn {
+  if (type === 'weekdays') return { type, weekdays };
+  if (type === 'times_per_week') return { type, times_per_week: timesPerWeek };
+  return { type };
 }
 
 /** Create/edit form for a habit's name, description, icon, and color (spec 002 FR-001, FR-002). */
@@ -61,13 +86,14 @@ export function HabitForm({
     event.preventDefault();
     const next = validate(values);
     setErrors(next);
-    if (next.name || next.description) return;
+    if (next.name || next.description || next.schedule) return;
     const description = values.description.trim();
     onSubmit({
       name: values.name.trim(),
       description: description || null,
       icon: values.icon,
       color: values.color,
+      schedule: toScheduleIn(values.schedule),
     });
   }
 
@@ -96,6 +122,12 @@ export function HabitForm({
         name={`${idPrefix}-color`}
         value={values.color}
         onChange={(color) => setValues({ ...values, color })}
+      />
+      <SchedulePicker
+        idPrefix={idPrefix}
+        value={values.schedule}
+        error={errors.schedule}
+        onChange={(schedule) => setValues({ ...values, schedule })}
       />
       {errorMessage && (
         <p role="alert" className="form-error">

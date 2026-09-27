@@ -7,6 +7,25 @@ import { API, errorBody } from './server';
 type HabitRead = components['schemas']['HabitRead'];
 type HabitCreate = components['schemas']['HabitCreate'];
 type HabitUpdate = components['schemas']['HabitUpdate'];
+type ScheduleIn = components['schemas']['ScheduleIn'];
+type ScheduleRead = components['schemas']['ScheduleRead'];
+
+export const DAILY: ScheduleRead = {
+  type: 'daily',
+  weekdays: [],
+  times_per_week: null,
+  effective_from: '2026-09-26',
+};
+
+function toRead(schedule: ScheduleIn | null | undefined): ScheduleRead {
+  if (!schedule) return DAILY;
+  return {
+    type: schedule.type,
+    weekdays: schedule.weekdays ?? [],
+    times_per_week: schedule.times_per_week ?? null,
+    effective_from: '2026-09-26',
+  };
+}
 
 let counter = 0;
 
@@ -21,6 +40,7 @@ export function habit(overrides: Partial<HabitRead> = {}): HabitRead {
     position: counter,
     archived_at: null,
     created_at: '2026-09-26T12:00:00Z',
+    schedule: DAILY,
     ...overrides,
   };
 }
@@ -57,6 +77,7 @@ export function habitsBackend(initial: HabitRead[] = []): {
         icon: body.icon ?? null,
         color: body.color ?? 'coral',
         position: nextPosition(),
+        schedule: toRead(body.schedule),
       });
       state.habits.push(created);
       return HttpResponse.json(created, { status: 201 });
@@ -73,7 +94,8 @@ export function habitsBackend(initial: HabitRead[] = []): {
     http.patch(`${API}/habits/:id`, async ({ params, request }) => {
       const h = find(params.id);
       if (!h) return notFound();
-      Object.assign(h, (await request.json()) as HabitUpdate);
+      const { schedule, ...rest } = (await request.json()) as HabitUpdate;
+      Object.assign(h, rest, schedule ? { schedule: toRead(schedule) } : {});
       return HttpResponse.json(h);
     }),
     http.delete(`${API}/habits/:id`, ({ params }) => {

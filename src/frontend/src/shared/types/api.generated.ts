@@ -89,6 +89,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/days/{date}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Day */
+    get: operations['get_day_api_v1_days__date__get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/habits': {
     parameters: {
       query?: never;
@@ -231,6 +248,30 @@ export interface components {
       /** Note */
       note: string | null;
     };
+    /** DayHabit */
+    DayHabit: {
+      /** Completed */
+      completed: boolean;
+      habit: components['schemas']['HabitRead'];
+      /** Note */
+      note: string | null;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: 'due' | 'done_for_week';
+      week: components['schemas']['WeekProgress'] | null;
+    };
+    /** DaySummary */
+    DaySummary: {
+      /**
+       * Date
+       * Format: date
+       */
+      date: string;
+      /** Items */
+      items: components['schemas']['DayHabit'][];
+    };
     /** ErrorBody */
     ErrorBody: {
       /** Code */
@@ -265,6 +306,7 @@ export interface components {
       icon?: string | null;
       /** Name */
       name: string;
+      schedule?: components['schemas']['ScheduleIn'];
     };
     /** HabitList */
     HabitList: {
@@ -302,6 +344,7 @@ export interface components {
       name: string;
       /** Position */
       position: number;
+      schedule: components['schemas']['ScheduleRead'];
     };
     /**
      * HabitUpdate
@@ -316,6 +359,7 @@ export interface components {
       icon?: string | null;
       /** Name */
       name?: string | null;
+      schedule?: components['schemas']['ScheduleIn'] | null;
     };
     /** LoginRequest */
     LoginRequest: {
@@ -335,6 +379,38 @@ export interface components {
        * @default UTC
        */
       timezone: string;
+    };
+    /**
+     * ScheduleIn
+     * @description A schedule rule; fields irrelevant to `type` are ignored (FR-002, FR-003).
+     */
+    ScheduleIn: {
+      /** Times Per Week */
+      times_per_week?: number | null;
+      /**
+       * Type
+       * @enum {string}
+       */
+      type: 'daily' | 'weekdays' | 'times_per_week';
+      /** Weekdays */
+      weekdays?: ('mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun')[] | null;
+    };
+    /** ScheduleRead */
+    ScheduleRead: {
+      /**
+       * Effective From
+       * Format: date
+       */
+      effective_from: string;
+      /** Times Per Week */
+      times_per_week: number | null;
+      /**
+       * Type
+       * @enum {string}
+       */
+      type: 'daily' | 'weekdays' | 'times_per_week';
+      /** Weekdays */
+      weekdays: ('mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun')[];
     };
     /** UserRead */
     UserRead: {
@@ -362,6 +438,13 @@ export interface components {
       msg: string;
       /** Error Type */
       type: string;
+    };
+    /** WeekProgress */
+    WeekProgress: {
+      /** Completed */
+      completed: number;
+      /** Target */
+      target: number;
     };
   };
   responses: never;
@@ -594,6 +677,48 @@ export interface operations {
       };
       /** @description Forbidden */
       403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelope'];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelope'];
+        };
+      };
+    };
+  };
+  get_day_api_v1_days__date__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        date: string;
+      };
+      cookie?: {
+        habitude_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DaySummary'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
         headers: {
           [name: string]: unknown;
         };

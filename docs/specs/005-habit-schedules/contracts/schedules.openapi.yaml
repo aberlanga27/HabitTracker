@@ -1,0 +1,91 @@
+openapi: 3.1.0
+info:
+  title: Habitude API - Schedules and day view (spec 005)
+  version: "1"
+# Session cookie required (401). State-changing requests require X-Requested-With (403).
+paths:
+  /api/v1/habits:
+    post:
+      summary: Create a habit; `schedule` defaults to daily (FR-001)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "../../002-habit-management/contracts/habits.openapi.yaml#/components/schemas/HabitCreate"
+                - type: object
+                  properties:
+                    schedule: { $ref: "#/components/schemas/ScheduleIn" }
+  /api/v1/habits/{habit_id}:
+    patch:
+      summary: Changing `schedule` takes effect from the user's local today (FR-005, FR-006)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                schedule: { $ref: "#/components/schemas/ScheduleIn" }
+  /api/v1/days/{date}:
+    get:
+      summary: Habits due (or done for the week) on a local date, with completion (FR-004)
+      parameters:
+        - { name: date, in: path, required: true, schema: { type: string, format: date } }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DaySummary" }
+components:
+  schemas:
+    Weekday:
+      type: string
+      enum: [mon, tue, wed, thu, fri, sat, sun]
+    ScheduleIn:
+      type: object
+      required: [type]
+      properties:
+        type: { type: string, enum: [daily, weekdays, times_per_week] }
+        weekdays:
+          type: array
+          items: { $ref: "#/components/schemas/Weekday" }
+          description: Required and non-empty when type = weekdays (FR-002)
+        times_per_week:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: Required when type = times_per_week; 7 is normalized to daily (FR-003)
+    ScheduleRead:
+      type: object
+      required: [type, weekdays, times_per_week, effective_from]
+      properties:
+        type: { type: string, enum: [daily, weekdays, times_per_week] }
+        weekdays: { type: array, items: { $ref: "#/components/schemas/Weekday" } }
+        times_per_week: { type: [integer, "null"] }
+        effective_from: { type: string, format: date }
+    WeekProgress:
+      type: object
+      required: [completed, target]
+      properties:
+        completed: { type: integer }
+        target: { type: integer }
+    DayHabit:
+      type: object
+      required: [habit, status, completed, note, week]
+      properties:
+        habit:
+          description: HabitRead from spec 002 plus `schedule` (ScheduleRead)
+          type: object
+        status: { type: string, enum: [due, done_for_week] }
+        completed: { type: boolean }
+        note: { type: [string, "null"] }
+        week:
+          oneOf:
+            - $ref: "#/components/schemas/WeekProgress"
+            - type: "null"
+    DaySummary:
+      type: object
+      required: [date, items]
+      properties:
+        date: { type: string, format: date }
+        items: { type: array, items: { $ref: "#/components/schemas/DayHabit" } }

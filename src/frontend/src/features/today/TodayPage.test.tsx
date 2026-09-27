@@ -2,18 +2,21 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { checkInsBackend, failingCheckInPut } from '@/test/check-ins-backend';
+import { dayBackend, failingCheckInPut, type DayStatus } from '@/test/day-backend';
 import { habit, habitsBackend } from '@/test/habits-backend';
 import { axeViolations, renderApp } from '@/test/render';
 import { ana, server, sessionHandlers } from '@/test/server';
 
 const read = habit({ name: 'Read 10 pages', position: 0 });
 
+type CheckIns = NonNullable<Parameters<typeof dayBackend>[1]>['checkIns'];
+
 function setup(
-  checkIns: Parameters<typeof checkInsBackend>[0] = [],
+  checkIns: CheckIns = [],
   habits = [read],
-): ReturnType<typeof checkInsBackend> {
-  const backend = checkInsBackend(checkIns);
+  statusFor?: (h: (typeof habits)[number], date: string) => DayStatus | null,
+): ReturnType<typeof dayBackend> {
+  const backend = dayBackend(habits, { checkIns, statusFor });
   server.use(...sessionHandlers(ana), ...habitsBackend(habits).handlers, ...backend.handlers);
   return backend;
 }
@@ -190,5 +193,41 @@ describe('spec 003 US3 - Add a note', () => {
     renderApp('/');
     await screen.findByRole('button', { name: 'Read 10 pages' });
     expect(screen.queryByRole('button', { name: /add note/i })).not.toBeInTheDocument();
+  });
+});
+
+describe('spec 005 - Schedules on Today', () => {
+  const gym = habit({
+    name: 'Gym',
+    position: 1,
+    schedule: {
+      type: 'weekdays',
+      weekdays: ['mon', 'wed', 'fri'],
+      times_per_week: null,
+      effective_from: '2026-09-21',
+    },
+  });
+
+  it('US2-S1: a Mon/Wed/Fri habit is not listed on a day the server says it is not due', async () => {
+    setup([], [read, gym], (h, date) =>
+      h.id === gym.id && date === '2026-09-22' ? null : { status: 'due' },
+    );
+    renderApp('/?date=2026-09-22');
+    expect(await screen.findByRole('button', { name: 'Read 10 pages' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Gym' })).not.toBeInTheDocument();
+  });
+
+  it('US3-S1: a 3x/week habit with 2 check-ins shows "2 of 3 this week"', async () => {
+    setup([], [read], () => ({ status: 'due', week: { completed: 2, target: 3 } }));
+    renderApp('/');
+    const list = await screen.findByRole('list', { name: /habits for/i });
+    expect(await within(list).findByText('2 of 3 this week')).toBeInTheDocument();
+  });
+
+  it('US3-S2: a 3x/week habit with 3 check-ins shows "Done for this week"', async () => {
+    setup([], [read], () => ({ status: 'done_for_week', week: { completed: 3, target: 3 } }));
+    renderApp('/');
+    const list = await screen.findByRole('list', { name: /habits for/i });
+    expect(await within(list).findByText(/done for this week/i)).toBeInTheDocument();
   });
 });
