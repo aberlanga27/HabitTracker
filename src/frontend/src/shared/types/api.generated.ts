@@ -264,11 +264,17 @@ export interface components {
     };
     /** DaySummary */
     DaySummary: {
+      /** Completed Count */
+      completed_count: number;
       /**
        * Date
        * Format: date
        */
       date: string;
+      /** Due Count */
+      due_count: number;
+      /** Habit Count */
+      habit_count: number;
       /** Items */
       items: components['schemas']['DayHabit'][];
     };

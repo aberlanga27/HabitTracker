@@ -36,8 +36,9 @@ export function dayBackend(
   const handlers = [
     http.get(`${API}/days/:date`, ({ params }) => {
       const date = String(params.date);
+      const active = habits.filter((h) => h.archived_at === null);
       const items: DayHabit[] = [];
-      for (const habit of habits.filter((h) => h.archived_at === null)) {
+      for (const habit of active) {
         const status = statusFor(habit, date);
         if (!status) continue;
         const state = states.get(`${habit.id}|${date}`);
@@ -49,7 +50,14 @@ export function dayBackend(
           week: status.week ?? null,
         });
       }
-      return HttpResponse.json({ date, items });
+      const due = items.filter((item) => item.status === 'due');
+      return HttpResponse.json({
+        date,
+        items,
+        due_count: due.length,
+        completed_count: due.filter((item) => item.completed).length,
+        habit_count: active.length,
+      });
     }),
     http.put(`${API}/habits/:habitId/check-ins/:date`, async ({ params, request }) => {
       const habitId = String(params.habitId);
