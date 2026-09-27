@@ -32,3 +32,6 @@ test-results/
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
+
+# slides
+slides/
