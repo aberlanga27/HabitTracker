@@ -8,6 +8,15 @@
 
 **Input**: User description: "Show current and longest streak per habit so users stay motivated."
 
+## Clarifications
+
+### Session 2026-09-26
+
+Resolved by the implementing agent without an interactive session (the requester asked for no interaction); each answer follows the closest existing rule and is flagged for product review.
+
+- Q: How do streaks work for "N times per week" habits (spec 005), where no individual day is required? → A: A week counts as met when it has at least N check-ins. The streak is the number of completed check-ins (at most N per week) across consecutive met weeks plus the current, still-open week; an unmet week breaks the streak only once that week has ended. This mirrors FR-003 ("unscheduled days are skipped, not counted as misses"): after the Nth check-in the rest of the week is unscheduled.
+- Q: Do check-ins on unscheduled days (e.g. a Tuesday check-in for a Mon/Wed/Fri habit) extend a streak? → A: No. Streaks count consecutive *scheduled* days completed (FR-001); unscheduled days neither extend nor break a streak.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - See Current Streak (Priority: P1)

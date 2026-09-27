@@ -1,0 +1,23 @@
+openapi: 3.1.0
+info:
+  title: Habitude API - Streaks (spec 004)
+  version: "1"
+# No new endpoints. Every HabitRead (GET/POST/PATCH /habits..., archive, restore, order, and
+# DaySummary.items[].habit from GET /days/{date}) gains `streak` (FR-005).
+components:
+  schemas:
+    StreakRead:
+      type: object
+      required: [current, current_start, longest, longest_start, longest_end]
+      properties:
+        current: { type: integer, minimum: 0 }
+        current_start: { type: [string, "null"], format: date }
+        longest: { type: integer, minimum: 0 }
+        longest_start: { type: [string, "null"], format: date }
+        longest_end: { type: [string, "null"], format: date }
+    HabitRead:
+      description: spec 002 HabitRead + spec 005 schedule + streak
+      type: object
+      required: [streak]
+      properties:
+        streak: { $ref: "#/components/schemas/StreakRead" }
