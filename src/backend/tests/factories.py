@@ -73,6 +73,24 @@ def make_habit(
     return habit
 
 
+def build_schedule(
+    effective_from: date,
+    type_: str = "daily",
+    *,
+    weekdays: int = 0,
+    times_per_week: int | None = None,
+    habit_id: str = "h",
+) -> Schedule:
+    """An unsaved schedule row for pure-function tests (weekdays mask: Mon=1 .. Sun=64)."""
+    return Schedule(
+        habit_id=habit_id,
+        type=type_,
+        weekdays=weekdays,
+        times_per_week=times_per_week,
+        effective_from=effective_from,
+    )
+
+
 def create_habit(client: TestClient, **fields: object) -> dict[str, Any]:
     """Create a habit through the API for the signed-in client."""
     payload: dict[str, object] = {"name": "Read 10 pages", **fields}

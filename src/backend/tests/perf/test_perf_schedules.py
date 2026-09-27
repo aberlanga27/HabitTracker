@@ -4,9 +4,9 @@ import time
 from datetime import date, timedelta
 
 import pytest
-from app.services.schedules import is_due, rule_of, schedule_on
 
 from app.models import Schedule
+from app.services.schedules import is_due, rule_of, schedule_on
 
 HABITS = 50
 RUNS = 1000
