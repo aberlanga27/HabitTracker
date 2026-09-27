@@ -156,7 +156,16 @@ def test_fr004_completed_and_note_reflect_check_in_on_that_date(client: TestClie
     habit = create_habit(client)
     check_in(client, habit["id"], TODAY, note="felt great")
     assert _item(client, TODAY, habit["id"]) == {
-        "habit": habit,
+        "habit": {
+            **habit,
+            "streak": {
+                "current": 1,
+                "current_start": TODAY,
+                "longest": 1,
+                "longest_start": TODAY,
+                "longest_end": TODAY,
+            },
+        },
         "status": "due",
         "completed": True,
         "note": "felt great",

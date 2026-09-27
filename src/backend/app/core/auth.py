@@ -1,5 +1,6 @@
 """Current-user dependency backed by the session cookie."""
 
+from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Annotated
 
@@ -39,3 +40,19 @@ def get_today(user: CurrentUser, clock: ClockDep) -> date:
 
 
 TodayDep = Annotated[date, Depends(get_today)]
+
+
+@dataclass(frozen=True)
+class Viewer:
+    """Who is asking and what their local calendar looks like right now."""
+
+    user_id: str
+    timezone: str
+    today: date
+
+
+def get_viewer(user: CurrentUser, today: TodayDep) -> Viewer:
+    return Viewer(user_id=user.id, timezone=user.timezone, today=today)
+
+
+ViewerDep = Annotated[Viewer, Depends(get_viewer)]

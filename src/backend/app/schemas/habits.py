@@ -11,6 +11,7 @@ from pydantic import (
 )
 
 from app.schemas.schedules import ScheduleIn, ScheduleRead
+from app.schemas.streaks import StreakRead
 
 HabitColor = Literal["coral", "amber", "lime", "teal", "sky", "indigo", "violet", "rose"]
 
@@ -80,6 +81,7 @@ class HabitRead(BaseModel):
     archived_at: datetime | None
     created_at: datetime
     schedule: ScheduleRead
+    streak: StreakRead
 
 
 class HabitList(BaseModel):
