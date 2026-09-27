@@ -4,8 +4,8 @@ import time
 from datetime import date, timedelta
 
 import pytest
-from app.services.streaks import compute_streak
 
+from app.services.streaks import compute_streak
 from tests.factories import build_schedule
 
 DAYS = 730
