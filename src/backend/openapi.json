@@ -627,6 +627,7 @@
       "StreakRead": {
         "properties": {
           "current": {
+            "minimum": 0.0,
             "title": "Current",
             "type": "integer"
           },
@@ -643,6 +644,7 @@
             "title": "Current Start"
           },
           "longest": {
+            "minimum": 0.0,
             "title": "Longest",
             "type": "integer"
           },
